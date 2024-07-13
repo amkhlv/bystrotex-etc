@@ -3,7 +3,7 @@
 @(require "defs.rkt" bystroTeX/common bystroTeX/slides (for-syntax bystroTeX/slides_for-syntax))
 @; ---------------------------------------------------------------------------------------------------
 @; User definitions:
-@(bystro-set-css-dir (build-path 'same "css"))
+@(bystro-set-css-dir (build-path 'up 'up "profiles" "writeup"))
 
 @; This controls the single page mode:
 @(define singlepage-mode #f)
