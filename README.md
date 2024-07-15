@@ -14,8 +14,22 @@ A tool for writing HTML with LaTeX formulas
 
 ## building example pages
 
+First run the server:
+
+    cd latex-to-svg/
+    node index,js
+
+Then, in a separate terminal:
+
     cd examples/bystroTeX_manual
     bystrotex
+
+The output should be in `slides-manual/`. It is a short manual. It is also
+[available online](https://amkhlv.github.io/bystrotex-manual/)
+
+
+
+
  
     
 

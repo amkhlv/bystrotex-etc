@@ -73,143 +73,48 @@ Sometimes you might want to press the ``up'' link, which will bring you to the t
 The title page has the list of contents, so you can jump to particular slides from there.
 
 
-@page["Installation Part I" #:tag "Installation" #:showtitle #t]
-BystroTeX consists of the frontend (Racket) and backend (Java). The Java part works
-like a server. It is actually an HTTP server. It listens on some port on the @tt{localhost}.
-We will start with @bold{setting up this server}.
+@page["Installation and running" #:tag "Installation" #:showtitle #t]
 
-@bystro-local-toc[]
+BystroTeX consists of the frontend (Racket) and backend (Node.js) communicating via a ZeroMQ socket.
 
-@subpage[1 @elem{Install JDK, SBT and Git} #:tag "sec:JDKEtc"]
+@subpage[1 "Installation" #:tag "sec:Building"]
 
-To install the server, you will need to install the following things on your computer: 
-
-@itemlist[#:style 'ordered
-@item{Java with @hyperlink["https://en.wikipedia.org/wiki/Java_Development_Kit"]{JDK}}
-@item{@hyperlink["https://en.wikipedia.org/wiki/Git"]{git}}
-          @item{@hyperlink["https://en.wikipedia.org/wiki/SBT_(software)"]{SBT}
-                          (it is best installed @italic{via}
-                              @hyperlink["https://get-coursier.io/docs/cli-installation"]{Coursier},
-                              @tt{cs update cs} then @tt{cs install sbt})}
-]
-
-@subpage[1 @elem{Build things} #:tag "sec:Building"]
-
-Now execute the following commands:
-
-@smaller{@tt{git clone https://github.com/amkhlv/LaTeX2SVGServer}}
-
-@smaller{@tt{cd LaTeX2SVGServer}}
-
-@smaller{@tt{sbt assembly}}
-
-
-This will take some time, as various libraries will have to be downloaded (and saved in @tt{~/.ivy2} and @tt{~/.sbt}).
-
-After that, the following JAR file will appear:
-
-@tt{latex2svgserver.jar}
-
-@subpage[1 @elem{Run} #:tag "sec:Run"]
-
-Our Java server will communicate to the Racket frontend some initial settings 
-(including the anti-@hyperlink["https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)"]{CSRF} token) 
-by writing them into an @tt{XML} file. You have to decide how it should name this file and where to put it.
-Suppose that you decided to call it @tt{bystroConf.xml}, and choosen some directory where it will be:
-
-@smaller{@tt{/path/to/bystroConf.xml}}
-
-Under this assumption, start the server by typing the following command:
-
-@tt|{java -DbystroFile=/path/to/bystroConf.xml -Dbibfile=/path/to/yourBibTeXfile.bib -Dhttp.port=11111 -Dhttp.address=127.0.0.1 -jar latex2svgserver.jar}|
-
-(Yes, you need to supply a BibTeX file. It may be empty.)
-
-@comment{
-The port number @tt{11111} is also up to you to choose. The frontend will know it because it will be written (among other things) to @tt{/path/to/bystroConf.xml}
-}
-
-Now the server is running. 
-
-@comment{
-Notice that we specified the option @smaller{@tt{-Dhttp.address=127.0.0.1}}. Therefore the server
-is only listening on a local interface (the ``loopback''); 
-@hyperlink["http://stackoverflow.com/questions/30658161/server-listens-on-127-0-0-1-do-i-need-firewall"]{it is not possible to connect to it from the outside}.
-However, it would be still 
-@hyperlink["https://blog.jetbrains.com/blog/2016/05/11/security-update-for-intellij-based-ides-v2016-1-and-older-versions/"]{possible to attack it} 
-from a running browser by 
-@hyperlink["https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)"]{CSRF}.
-Our defense is token and custom header. Should CSRF somehow succeed in spite of these measures, 
-actually exploiting it would require a vulnerability in 
-@hyperlink["https://github.com/opencollab/jlatexmath"]{JLaTeXMath}.
-}
-
-
-@page["Installation Part II" #:tag "Installation2" #:showtitle #t]
-
-Now comes the frontend.
-
-@table-of-contents[]
-
-@subpage[1 @elem{Installing Racket} #:tag "sec:InstallRacket"]
-
-You should start with installing @hyperlink["http://racket-lang.org/"]{@tt{Racket}} on your computer.
-For example, on @tt{Debian} you should issue this command @bold{@clr["red"]{as root:}}
-@verb{
-aptitude install racket
-}
-This command will install the @tt{Racket} environment on your computer. Now we are ready to
-install @tt{bystroTeX}.
-
-@itemlist[
-@item{@bold{For Windows users}: @smaller{You will have to manually install the @tt{dll} for the @tt{sqlite3}, please consult the Google}}
-]
-
-@subpage[1 @elem{Installing the BystroTeX library} #:tag "sec:BystroLib"]
-
-@bold{@clr["red"]{As a normal user}} (i.e. @bold{@clr["red"]{not}} root), exectute:
+After installing @hyperlink["https://racket-lang.org/"]{Racket} and
+@hyperlink["https://nodejs.org"]{Node.js}, do:
 
 @verb|{
-git clone https://github.com/amkhlv/amkhlv
-cd amkhlv
-raco pkg install --link bystroTeX/
-}|
+       git clone https://github.com/amkhlv/bystrotex-etc
+       cd bystrotex-etc
+       
+       raco pkg install yaml
+       raco pkg install zeromq
+       raco pkg install --link bystroTeX/
+       raco pkg install --link truques/
+       cd bystroTeX
+       raco exe bystrotex.rkt
+       mv bystrotex ~/.local/bin/
+       cd ..
 
-@comment{
-Now you should be able to read the documentation manual in @tt{bystroTeX/doc/manual/index.html}, but it is not very useful. It is better to just follow examples.
-}
+       }|
 
-@subpage[1 @elem{Installing the BystroTeX executable} #:tag "sec:installing-the-executable"]
+@subpage[1 "Running" #:tag "sec:Running"]
+
+First run the server:
 
 @verb|{
-cd bystroTeX/
-raco exe bystrotex.rkt
-}|
+    cd latex-to-svg/
+    npm i
+    node index,js
+    }|
 
-This should create the executable file called @tt{bystrotex}. You should copy it to some location on your executable path (maybe @tt{/usr/local/bin/}).
+Then, in a separate terminal:
 
-@subpage[1 @elem{Building sample slides} #:tag "sec:BuildingExample"]
+@verb|{
+       cd examples/bystroTeX_manual
+       bystrotex
+       }|
 
-Now @spn[attn]{Now go to the sample folder}:
-
-@verb{cd ../examples}
-
-Remember your @tt{/path/to/bystroConf.xml} ? For sample slides to build, you need to symlink it to here:
-
-@verb{ln -s /path/to/bystroConf.xml ./}
-
-@comment{
-         Generally speaking, the location of the server configuration file
-         is kept in the @tt{bystro-conf} struct which is
-         defined in the header of the @tt{.scrbl} file.
-         }
-
-Now let us go to the sample slides directory:
-
-@verb{cd bystroTeX_manual}
-
-and proceed to the @seclink["SamplePresentation"]{next slide}...
-
+The output should be in @tt{slides-manual/}
 
 
 @page["Basic syntax" #:tag "Syntax" #:showtitle #t]
