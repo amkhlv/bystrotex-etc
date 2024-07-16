@@ -81,6 +81,7 @@ After installing @hyperlink["https://racket-lang.org/"]{Racket} and
        raco pkg install zeromq
        raco pkg install --link bystroTeX/
        raco pkg install --link truques/
+       raco setup
        cd bystroTeX
        raco exe bystrotex.rkt
        mv bystrotex ~/.local/bin/
@@ -107,6 +108,16 @@ Then, in a separate terminal:
 
 The output should be in @tt{slides-manual/}
 
+@subpage[1 "Documentation" #:tag "sec:Documentation"]
+
+To open documentation in browser:
+
+@verb|{
+       raco docs
+       }|
+
+There are sections on @tt{BystroTeX}. They are not particularly useful;
+it is better to look at examples. (Such as this manual.)
 
 @page["Basic syntax" #:tag "Syntax" #:showtitle #t]
 

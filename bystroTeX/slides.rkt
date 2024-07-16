@@ -118,9 +118,9 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            [sock-path
             (format "ipc://~a/.local/run/bystrotex.ipc" (path->string (find-system-path 'home-dir)))]
            )
-      (printf " -- connecting to ~a ~n" sock-path)
+      (display (format " -- connecting to ~a ~n" sock-path))
       (socket-connect! sock sock-path)
-      (displayln " -- connected")
+      (display " -- connected")
       sock))
   (define zeromq-socket (get-zeromq-socket))
 
@@ -249,9 +249,9 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
    [bystro-initialize-formula-collection 
     (-> connection?)]))
   (define (bystro-initialize-formula-collection)
-    (display "\n --- initializing formula collection in the directory: ")
+    (display "\n -- initializing formula collection in the directory: ")
     (display formula-dir)
-    (display "\n --- using the sqlite file: ")
+    (display "\n -- using the sqlite file: ")
     (display (build-path formula-dir database-filename))
     (unless (directory-exists? (string->path formula-dir))
       (make-directory (string->path formula-dir)))

@@ -7,6 +7,7 @@ A tool for writing HTML with LaTeX formulas
     raco pkg install zeromq
     raco pkg install --link bystroTeX/
     raco pkg install --link truques/
+    raco setup
     cd bystroTeX
     raco exe bystrotex.rkt
     mv bystrotex ~/.local/bin/
@@ -26,6 +27,16 @@ Then, in a separate terminal:
 
 The output should be in `slides-manual/`. It is a short manual. It is also
 [available online](https://amkhlv.github.io/bystrotex-manual/)
+
+## documentation
+
+To open docs in the browser:
+
+    raco docs
+
+There are sections on BystroTeX
+
+
 
 
 
