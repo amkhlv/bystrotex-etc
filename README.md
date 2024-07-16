@@ -17,7 +17,7 @@ A tool for writing HTML with LaTeX formulas
 First run the server:
 
     cd latex-to-svg/
-    node index,js
+    node index.js
 
 Then, in a separate terminal:
 

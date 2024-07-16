@@ -449,10 +449,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                             (string-append
                              (cadr xs)
                              (number->string
-                              (let ([orig (string->number (caddr xs))])
-                                (if (orig . < . 0)
-                                    (* (1 . - . (n . / . 10)) (string->number (caddr xs)))
-                                    (* (1 . + . (n . / . 10)) (string->number (caddr xs))))))
+                              (let ([orig (string->number (caddr xs))]) (orig . + . (n . / . 10.0))))
                              (cadddr xs))))]
                )
           (if row

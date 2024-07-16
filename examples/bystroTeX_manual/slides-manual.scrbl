@@ -33,17 +33,7 @@ Or, formula in the box:
 @f{{\partial\phi\over\partial\sigma} = - {\partial W\over \partial \phi}} 
 }] @nested{@label{SolitonEquation}}]]]
 If we need, we can also insert @f-4{x^2} shifted down, 
-or insert a shifted up and rescaled: @f+3+8{y^2}. @smaller{
-@fsize+[-5]
-We can also temporarily change the default size of the formulas. For example, this paragraph is
-typeset using small font. The formula @f{yx^2} comes out smaller because we changed the default size.
-After we restore the default size
-@fsize=[]
-@f{zx^2} is of the normal size. Some people like colored formulas: 
-@bystro-bg[255 200 200] @bystro-fg[0 0 250]
-@f{\; l^2 = a^2 + b^2}
-@bystro-bg[255 255 255] @bystro-fg[0 0 0]
-}
+or insert a shifted up and rescaled: @f+3+8{y^2}. 
 
 See the @seclink["Syntax"]{syntax part} for more examples.  
 }
@@ -63,6 +53,7 @@ For example, one can include pictures, as illustrated. Flying kite could be an a
 
 
 @page["Jumping to references" #:tag "JumpingReferences" #:showtitle #t]
+
 Remember the formula (@ref{Lagrangian})? Clicking on
 (@ref{Lagrangian}) brings you to that formula.
 
@@ -104,7 +95,7 @@ First run the server:
 @verb|{
     cd latex-to-svg/
     npm i
-    node index,js
+    node index.js
     }|
 
 Then, in a separate terminal:
@@ -118,6 +109,7 @@ The output should be in @tt{slides-manual/}
 
 
 @page["Basic syntax" #:tag "Syntax" #:showtitle #t]
+
 You might want to read @hyperlink["http://docs.racket-lang.org/scribble/reader.html"]{basic Scribble documentation},
 But it should not be necessary, because the syntax should be clear from the source file of these pages. 
 More examples can be found @hyperlink["https://github.com/amkhlv/BV"]{here}.
@@ -148,15 +140,6 @@ It is also possible to manually align the formulas, for example
 There is also zoomed @tt|--{@f+0+7{x^2}}--| which gives @f+0+7{x^2} and zoom
 with align @tt|--{@f-5+7{x^2}}--| which gives @f-5+7{x^2}.
 
-The command @tt|--{@fsize[20]}--| changes the formula size to 20pt, the command @tt|--{@fsize[]}--|
-or equivalently @tt|--{@fsize=[]}--|
-returns back to the previous size (but you can not nest them, there is not stack of sizes).
-Actually I recommend to use instead the command @tt|--{@fsize+[5]}--| which changes the
-size relatively to the base size. This  will scale better if you will have to suddenly
-@seclink["FitProjector"]{change the resolution} 3 minutes before your talk. 
-To decrease the size, use @tt|--{@fsize+[@-[5]]}--| or equivalently  @tt|--{@(fsize+ (- 5))}--|.
-Both @tt|{@fsize[]}| and @tt|{@fsize+[]}| have an optional second argument, which modifies
-the vertical base alignment.
 
 
 @subpage[1 @elem{Multiline formulas} #:tag "sec:MultilineFormulas"]
@@ -285,8 +268,12 @@ For example, see
 
 
 @page["Using BibTeX" #:tag "BibTeX" #:showtitle #t]
-You should then @seclink["Installation"]{have started @tt{latex2svg}} with @tt{-Dbibfile=/path/to/your/file.bib}.
-Also, you should add in the headers of your @tt{.scrbl} file:
+
+The @tt{bibtex} file should be at the following location:
+
+@verb|{~/.config/bystrotex.bib}|
+
+Add in the headers of the @tt{.scrbl} file:
 
 @verb{(require bystroTeX/bibtex)}
 
@@ -295,7 +282,7 @@ Then you get the commands @tt|-{@cite{...}}-| and @tt|-{@bibliography[]}-|. They
 @item{you should explicitly put square bracket, @italic{e.g.}: @tt|-{[@cite{AuthorA:1989}]}-|}
 @item{if you need several citations together, use: @tt|-{[@cite{AuthorA:1989},@cite{AuthorB:1990}]}-|}
 ]
-This is slightly experimental.
+
 
 
 
