@@ -113,7 +113,7 @@ The output should be in @tt{slides-manual/}
 To open documentation in browser:
 
 @verb|{
-       raco docs
+       raco docs bystrotex
        }|
 
 There are sections on @tt{BystroTeX}. They are not particularly useful;

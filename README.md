@@ -3,8 +3,8 @@ A tool for writing HTML with LaTeX formulas
 
 ## Installation
 
-    raco pkg install yaml
-    raco pkg install zeromq
+Make sure that `~/.local/bin` is in `PATH`
+
     raco pkg install --link bystroTeX/
     raco pkg install --link truques/
     raco setup
@@ -32,9 +32,8 @@ The output should be in `slides-manual/`. It is a short manual. It is also
 
 To open docs in the browser:
 
-    raco docs
+    raco docs bystrotex
 
-There are sections on BystroTeX
 
 
 
