@@ -77,16 +77,14 @@ After installing @hyperlink["https://racket-lang.org/"]{Racket} and
        git clone https://github.com/amkhlv/bystrotex-etc
        cd bystrotex-etc
        
-       raco pkg install yaml
-       raco pkg install zeromq
        raco pkg install --link bystroTeX/
        raco pkg install --link truques/
        raco setup
+
        cd bystroTeX
        raco exe bystrotex.rkt
        mv bystrotex ~/.local/bin/
        cd ..
-
        }|
 
 @subpage[1 "Running" #:tag "sec:Running"]

@@ -5,9 +5,13 @@ A tool for writing HTML with LaTeX formulas
 
 Make sure that `~/.local/bin` is in `PATH`
 
+    git clone https://github.com/amkhlv/bystrotex-etc
+    cd bystrotex-etc
+    
     raco pkg install --link bystroTeX/
     raco pkg install --link truques/
     raco setup
+    
     cd bystroTeX
     raco exe bystrotex.rkt
     mv bystrotex ~/.local/bin/

@@ -11,14 +11,13 @@
   (define (cite x)
     (when (empty? (for/list ([y items] #:when (equal? x (car y))) #t))
       (let ([xh (get-bib-from-zeromq x)])
-        (displayln xh)
         (set! items (cons (cons x xh) items))))
     (elemref x x ))
 
   (define (not-null? x) (and x (not (eq? 'null x))))
   (define (prepend-comma x) (if (cons? x) (cons ", " x) x))
   (define (prepend-hspace x) (if (cons? x) (cons (hspace 1) x) x))
-  (define (format-title x) (italic (string-trim x #px"\\{|\\}|\\s+" #:repeat? #t)))
+  (define (format-title x) (italic x))
   (define (format-journal bh)
     (if (not-null? (hash-ref bh 'journal #f))
         `(,@(let ([j (hash-ref bh 'journal #f)]) (if (not-null? j) `(,j) '()))
@@ -42,7 +41,6 @@
        ,@(prepend-comma (format-doi bh))
        )))
   (define (bibliography)
-    (displayln items)
     (make-table 
      (make-style 
       #f

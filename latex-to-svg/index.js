@@ -39,6 +39,7 @@ const bib_file = path.join(homedir, ".config", "bystrotex.bib");
 if (!fs.existsSync(sock_dir)) {
   fs.mkdirSync(sock_dir);
 }
+const bib = parseBibFile(fs.readFileSync(bib_file).toString());
 
 function processBibField(field) {
   if (field === undefined) {return null}
@@ -81,7 +82,6 @@ async function runServer() {
       await sock.send(JSON.stringify(dims));
     }
     if ('bibkey' in obj) {
-      const bib = parseBibFile(fs.readFileSync(bib_file).toString());
       const entry = bib.getEntry(obj.bibkey);
       await sock.send(
         JSON.stringify(
