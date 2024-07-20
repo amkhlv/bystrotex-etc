@@ -29,6 +29,8 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                      scriblib/render-cond
                      (prefix-in the: xml)
                      xml/path
+                     json
+                     yaml
                      bystroTeX/common
                      "truques.rkt"
                      "xml.rkt"
@@ -317,8 +319,6 @@ Get the list of the column names. Sample use:
 }--|
 }
 
-
-
 @section{Terminal}
 @defmodule[truques/terminal]
 
@@ -335,11 +335,27 @@ see @hyperlink["https://en.wikipedia.org/wiki/File:Xterm_256color_chart.svg"]{Xt
 @defproc[(ansi-reverse [x string?]) string?]{reverse}
 @defproc[(ansi-clear-screen) any/c]{clear screen}
 
-@section{Dhall}
+@section{Multiconf}
 
-@(include-extracted truques/dhall)
+@defmodule[truques/multiconf]
+
+@defproc[
+         (multiconf
+          [#:input input-type (or/c 'dhall 'ncl)]
+          [code (listof string?)]
+          [#:file file (or/c #f path-string?) #f]
+          [#:dir dir (or/c #f path-string?) #f]
+          [#:output output-type (or/c 'json 'yaml 'type 'dhall 'toml) 'yaml]
+          [#:yaml-printer yaml-printer (or/c #f (-> yaml? block?)) #f]
+          [#:json-printer json-printer (or/c #f (-> jsexpr? block?)) #f]
+          )
+         block?]{
+                 Inserts contents of a Dhall or Nickel file
+                 }
 
 @section{DOCX}
+
+@defmodule[truques/docs]
 
 @(include-extracted truques/docx)
 

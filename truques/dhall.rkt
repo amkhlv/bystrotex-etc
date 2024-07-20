@@ -24,24 +24,65 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 ;(require bystroTeX/common)
 ;(require scribble/core scribble/base scribble/html-properties scribble/decode)
 
-(require scribble/srcdoc (for-doc scribble/base scribble/manual))
+(require yaml scribble/srcdoc scribble/core scribble/base (for-doc scribble/base scribble/manual))
 
+(provide
+ (contract-out
+  [dhall
+   (->i
+    ([code (listof string?)])
+    (
+     #:dir [dir (or/c path-string? #f)]
+     #:output [output-type (or/c 'json 'yaml 'type 'dhall)]
+     #:yaml-printer [yaml-printer
+                     (output-type)
+                     (or/c #f (-> yaml? block?))]
+     )
+    #:pre/name
+    (output-type yaml-printer)
+    "cant use yaml-printer since output type is not yaml"
+    (unless ((unsupplied-arg? yaml-printer) . or . (eq? output-type 'yaml)) (not yaml-printer))
+    [result block?])]))
 
-
-(provide (proc-doc/names dhall (->* (string? #:dir path-string?) () string?) ((code workdir) ()) ("run Dhall")))
-(define  (dhall #:dir workdir code)
+(define  (dhall
+          #:dir [workdir #f]
+          #:output [output 'yaml]
+          #:yaml-printer [yaml-printer #f]
+          .
+          code)
   (parameterize
-      ([current-directory workdir])
-  (let-values
-      ([(proc out in err)
-        (subprocess #f #f #f (find-executable-path "dhall"))])
-    (display code in)
-    (close-output-port in)
-    (display (port->string err) (current-error-port))
-    (close-input-port err)
-    (define r (port->string out))
-    (close-input-port out)
-    r
-    )))
+      ([current-directory (workdir . or . (current-directory))])
+    (let-values
+        ([(proc out in err)
+          (apply
+           subprocess
+           `(
+             #f
+             #f
+             #f
+             ,(find-executable-path
+               (case output
+                 ['yaml "dhall-to-yaml"]
+                 ['json "dhall-to-json"]
+                 ['dhall "dhall"]
+                 ['type "dhall"]
+                 )
+               ) 
+             ,@(if (eq? output 'type) '("type") '())
+             )
+           )
+          ])
+      (for ([line code]) (display line in))
+      (close-output-port in)
+      (display (port->string err) (current-error-port))
+      (close-input-port err)
+      (define result
+        (if yaml-printer
+            (let ([yml (read-yaml out)]) (yaml-printer yml))
+            (verbatim  (port->string out)))
+        )
+      (close-input-port out)
+      result
+      )))
 
 
