@@ -347,10 +347,18 @@ see @hyperlink["https://en.wikipedia.org/wiki/File:Xterm_256color_chart.svg"]{Xt
           [#:dir dir (or/c #f path-string?) #f]
           [#:output output-type (or/c 'json 'yaml 'type 'dhall 'toml) 'yaml]
           [#:yaml-printer yaml-printer (or/c #f (-> yaml? block?)) #f]
-          [#:json-printer json-printer (or/c #f (-> jsexpr? block?)) #f]
+          [#:json-printer json-printer (or/c #f (-> jsexpr? block?)) show-json]
           )
          block?]{
                  Inserts contents of a Dhall or Nickel file
+                 }
+
+@defproc[
+         (show-json
+          [jsn jsexpr?]
+          [#:font-size-step step string? "80%"])
+         block?]{
+                 prints JSON
                  }
 
 @section{DOCX}

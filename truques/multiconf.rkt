@@ -21,10 +21,53 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
 
 (require racket/base)
-;(require bystroTeX/common)
-;(require scribble/core scribble/base scribble/html-properties scribble/decode)
 
-(require yaml json scribble/srcdoc scribble/core scribble/base (for-doc scribble/base scribble/manual))
+(require yaml json scribble/srcdoc scribble/core scribble/base scribble/html-properties (for-doc scribble/base scribble/manual))
+
+(provide
+ (contract-out
+  [show-json (->i
+              ([jsn jsexpr?])
+              (#:font-size-step [step string?])
+              [result block?])]
+  ))
+(define (show-json jsn #:font-size-step [step "80%"] #:top? [top? #t])
+  (cond
+    [(hash? jsn)
+     (tabular
+      #:style
+      (style
+       #f
+       `(,(attributes `((style
+                         .
+                         ,(format
+                           "font-size: ~a; border: 1px solid black; border-spacing: 1ex;"
+                           (if top? "100%" step)
+                           ))))
+         ,(table-columns
+           `(,(style
+               #f
+               `(border top right ,(attributes `((style . "padding: 1ex;")))))
+             ,(style
+               #f
+               `(border ,(attributes `((style . "padding: 1ex;")))))))))
+      (for/list ([k (hash-keys jsn)])
+        `(,(symbol->string k)
+          ,(show-json (hash-ref jsn k) #:font-size-step step #:top? #f))
+        )
+      )
+     ]
+    [(string? jsn) (paragraph (style 'json-string '()) jsn)]
+    [(number? jsn) (show-json (number->string jsn))]
+    [(cons? jsn)
+     (apply
+      itemlist
+      (for/list ([v jsn]) (item (show-json v #:font-size-step step #:top? top?))))]
+    [(null? jsn) (show-json "()")]
+    [(boolean? jsn) (show-json (if jsn "true" "false"))]
+    )
+  )
+
 
 (provide
  (contract-out
@@ -68,7 +111,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
           #:dir [workdir #f]
           #:output [output-type 'yaml]
           #:yaml-printer [yaml-printer #f]
-          #:json-printer [json-printer #f]
+          #:json-printer [json-printer (λ (j) (show-json j))]
           .
           code)
   (parameterize
@@ -114,9 +157,9 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
       (close-input-port err)
       (define result
         (cond
-          [yaml-printer
+          [(and (eq? output-type 'yaml) yaml-printer)
            (let ([yml (read-yaml out)]) (yaml-printer yml))]
-          [json-printer
+          [(and (eq? output-type 'json) json-printer)
            (let ([jsn (read-json out)]) (json-printer jsn))]
           [else
            (verbatim  (port->string out))]
