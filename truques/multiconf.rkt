@@ -71,7 +71,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
 (provide
  (contract-out
-  [multiconf
+  [multishow
    (->i
     (
      #:input [input-type (or/c 'dhall 'ncl)]
@@ -105,7 +105,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
       [else #t])
     [result block?])]))
 
-(define  (multiconf
+(define  (multishow
           #:input input-type
           #:file [file #f]
           #:dir [workdir #f]

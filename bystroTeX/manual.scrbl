@@ -48,101 +48,10 @@ or at least not to be used frequently. (But this rule is not very strict.)
 
 
 
-@section{Functions used in headers}
-@defmodule[bystroTeX/slides]
-@defstruct[bystroserver  (
-                          [connection http-conn?]
-                          [token string?]
-                          [user (or/c #f string?)]
-                          [host string?]
-                          [port integer?]
-                          [path string?]
-                         )
-]{Configuration of the LaTeX server}
 
-@defproc[
-(bystro-connect-to-server 
- [xmlconf-file (or/c #f path?)]
- )
-(or/c 'running-without-LaTeX-server bystroserver?)
-]{
-Configures the location of the file containing the parameters of the LaTeX server (port number @italic{etc.})
-}
-
-@defstruct[bystro (
-                   [formula-processor (or/c 'running-without-LaTeX-server bystroserver?)]
-                   [formula-database-name path-string?]
-                   [formula-dir-name path-string?]
-                   [formula-size integer?]
-                   [formula-bg-color (list/c (integer-in 0 255) (integer-in 0 255) (integer-in 0 255))]
-                   [formula-fg-color (list/c (integer-in 0 255) (integer-in 0 255) (integer-in 0 255))]
-                   [autoalign-adjust integer?]
-                   [manual-base-alignment integer?]
-                  )
-]{Basic configuration}
-
-@section{Some general tricks}
-To load a stylesheet from a file @tt{filename.css}:
-
-@verbatim|--{
-@(element (make-style #f (list (make-css-addition (string->path "filename.css")))) '())
-}--|
-
-Example of nesting things:
-
-@verbatim|--{
-@nested[ #:style @(make-style "comment" '()) @verb|{
-This is some text which I want to be show verbatim
-}|
-]
-}--|
 
 @section{Functions for manipulating slides}
-@defmodule[bystroTeX/slides]
-@defstruct[bystro ([formula-processor path?]
-                   [formula-database-name string?]
-                   [formula-dir-name string?]
-                   [formula-size integer?]
-                   [formula-bg-color (listof integer?)]
-                   [formula-fg-color (listof integer?)]
-                   [autoalign-adjust integer?]
-                   [manual-base-alignment integer?])]{
-Configuration structure (mutable)}
 
-@defproc[
-(bystro-titlepage-init) 
-element?
-]{
-Installs the titlepage style
-}
-
-@defproc[
-(slide 
- [x content?]
- [#:tag tg (or/c symbol? string? #f) #f] 
- [#:showtitle sttl boolean? #f]
- [#:rest xs (listof pre-flow?)] 
- )
-part?
-]{
-A basic slide. The title of the slide is @racket[x], and the contents are @racket[xs].
-I recommend providing a nice tag @racket[tg], which will serve as a filename for the html.
-Otherwize, @racket[x] will be used as a filename, which may lead to awkward effects.
-}
-
-@defproc[
-(after-pause
- [#:tag tg (or/c symbol? string? #f) #f]
- [#:rest xs (listof pre-flow?)]
- )
-part?]{
-The continuation of the slide to be shown after pause.
-}
-
-@defproc[(remove-slide)
-void?]{
-Removes the most recently shown part of the slide
-}
 
 @defproc[
 (page
@@ -212,28 +121,12 @@ Like @literal|{\ref{...}}| in @tt{LaTeX}, reference to the label @racket[x].
 }
 
 @defproc[
-(bystro-bg [r exact-nonnegative-integer?] [g exact-nonnegative-integer?] [b exact-nonnegative-integer?])
-void?]{
-Set the background color for formulas
-}
-
-@defproc[
-(bystro-fg [r exact-nonnegative-integer?] [g exact-nonnegative-integer?] [b exact-nonnegative-integer?])
-void?]{
-Set the foreground color for formulas
-}
-
-@defproc[
 (bystro-formula 
  [#:database x db? ]
  [#:formulas-in-dir y string? ]
- [#:shell-command z path? #f ]
- [#:size n natural-number/c ]
- [#:bg-color bg-color (listof natural-number/c)]
- [#:fg-color fg-color (listof natural-number/c)]
+ [#:scale n number? ]
  [#:align m (or/c (integer-in (- 99) 99) #f) ]
- [#:use-depth ud boolean? ]
- [#:aa-adjust aa-adj (integer-in (- 99) 99) ]
+ [#:css-class css-class string? formula-css-class ]
  [#:rest tex (listof string?)])
 element?]{
 The user probably will not want to call this procedure directly, because there are

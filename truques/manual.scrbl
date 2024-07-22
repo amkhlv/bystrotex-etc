@@ -340,7 +340,7 @@ see @hyperlink["https://en.wikipedia.org/wiki/File:Xterm_256color_chart.svg"]{Xt
 @defmodule[truques/multiconf]
 
 @defproc[
-         (multiconf
+         (multishow
           [#:input input-type (or/c 'dhall 'ncl)]
           [code (listof string?)]
           [#:file file (or/c #f path-string?) #f]
