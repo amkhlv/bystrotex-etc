@@ -341,24 +341,36 @@ see @hyperlink["https://en.wikipedia.org/wiki/File:Xterm_256color_chart.svg"]{Xt
 
 @defproc[
          (multishow
-          [#:input input-type (or/c 'dhall 'ncl)]
+          [#:input input-type (or/c 'dhall 'ncl 'nu)]
           [code (listof string?)]
-          [#:file file (or/c #f path-string?) #f]
+          [#:file input-file (or/c #f path-string?) #f]
           [#:dir dir (or/c #f path-string?) #f]
           [#:output output-type (or/c 'json 'yaml 'type 'dhall 'toml) 'yaml]
           [#:yaml-printer yaml-printer (or/c #f (-> yaml? block?)) #f]
           [#:json-printer json-printer (or/c #f (-> jsexpr? block?)) show-json]
           )
          block?]{
-                 Inserts contents of a Dhall or Nickel file
+                 Inserts contents of a @hyperlink["https://dhall-lang.org/"]{Dhall}
+                 or @hyperlink["https://nickel-lang.org/"]{Nickel file}, or
+                 an output from @hyperlink["https://www.nushell.sh/"]{NuShell}. Example:
+                 @verb|{                 
+                        @multishow[
+                                   #:input 'nu
+                                   #:output 'text
+                                   #:dir "/home/andrei/"
+                                   ]{
+                                     ls | table | ansi strip
+                                     }
+                        }|
                  }
+
 
 @defproc[
          (show-json
           [jsn jsexpr?]
           [#:font-size-step step string? "80%"])
          block?]{
-                 prints JSON
+                 Inserts prettified JSON
                  }
 
 @section{DOCX}

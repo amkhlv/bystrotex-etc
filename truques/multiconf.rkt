@@ -24,6 +24,8 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
 (require yaml json scribble/srcdoc scribble/core scribble/base scribble/html-properties (for-doc scribble/base scribble/manual))
 
+(require bystroTeX/common)
+
 (provide
  (contract-out
   [show-json (->i
@@ -74,25 +76,25 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
   [multishow
    (->i
     (
-     #:input [input-type (or/c 'dhall 'ncl)]
+     #:input [input-type (or/c 'dhall 'ncl 'nu)]
      )
     (
-     [code (listof string?)]
-     #:file [file (or/c path-string? #f)]
+     #:file [input-file (or/c path-string? #f)]
      #:dir [dir (or/c path-string? #f)]
-     #:output [output-type (or/c 'json 'yaml 'type 'dhall 'toml)]
+     #:output [output-type (or/c 'text 'json 'yaml 'type 'dhall 'toml)]
      #:yaml-printer [yaml-printer
                      (or/c #f (-> yaml? block?))]
      #:json-printer [json-printer
                      (or/c #f (-> jsexpr? block?))]
      )
+    #:rest [code (listof string?)]
     #:pre/name
     (output-type yaml-printer)
     "cant use yaml-printer since output type is not yaml"
     (unless ((unsupplied-arg? yaml-printer) . or . (eq? output-type 'yaml)) (not yaml-printer))
     #:pre/name
     (output-type json-printer)
-    "cant use yaml-printer since output type is not yaml"
+    "cant use json-printer since output type is not json"
     (unless ((unsupplied-arg? json-printer) . or . (eq? output-type 'json)) (not json-printer))
     #:pre/name
     (input-type output-type)
@@ -103,11 +105,21 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
       [(eq? input-type 'ncl)
        (or (member output-type '(json yaml toml)) (unsupplied-arg? output-type))]
       [else #t])
+    #:pre/name
+    (input-type input-file)
+    "for NuShell does not make sense to specify file"
+    (when (eq? input-type 'nu) ((unsupplied-arg? input-file) . or . (not input-file)))
     [result block?])]))
 
+(define (intersperse separator ls)
+  (if (or (null? ls) (null? (cdr ls)))
+      ls
+      (cons (car ls)
+            (cons separator
+                  (intersperse separator (cdr ls))))))
 (define  (multishow
           #:input input-type
-          #:file [file #f]
+          #:file [input-file #f]
           #:dir [workdir #f]
           #:output [output-type 'yaml]
           #:yaml-printer [yaml-printer #f]
@@ -132,16 +144,19 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                     ['json "dhall-to-json"]
                     ['dhall "dhall"]
                     ['type "dhall"]
+                    ['text "dhall"]
                     )
                   ]
                  ['ncl "nickel"]
+                 ['nu "xargs"]
                  )
                )
+             ,@(if (eq? input-type 'nu) '("nu" "--commands") '())
              ,@(if (eq? input-type 'ncl)
                    `("export"
                      "--format"
                      ,(symbol->string output-type)
-                     ,@(if file `(,file) '())
+                     ,@(if input-file `(,input-file) '())
                      )
                    '())
              ,@(cond
@@ -151,7 +166,12 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
              )
            )
           ])
-      (unless file (for ([line code]) (display line in)))
+      (unless input-file (begin
+                           (displayln code)
+                           (for ([line code])
+                             (displayln line)
+                             (displayln line in)
+                             )))
       (close-output-port in)
       (display (port->string err) (current-error-port))
       (close-input-port err)
@@ -161,6 +181,10 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            (let ([yml (read-yaml out)]) (yaml-printer yml))]
           [(and (eq? output-type 'json) json-printer)
            (let ([jsn (read-json out)]) (json-printer jsn))]
+          [(eq? input-type 'nu)
+           (apply
+            verbatim
+            (intersperse "\n" (port->lines out)))]
           [else
            (verbatim  (port->string out))]
           )
