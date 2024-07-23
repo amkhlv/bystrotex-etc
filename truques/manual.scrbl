@@ -335,9 +335,9 @@ see @hyperlink["https://en.wikipedia.org/wiki/File:Xterm_256color_chart.svg"]{Xt
 @defproc[(ansi-reverse [x string?]) string?]{reverse}
 @defproc[(ansi-clear-screen) any/c]{clear screen}
 
-@section{Multiconf}
+@section{Multishow}
 
-@defmodule[truques/multiconf]
+@defmodule[truques/multishow]
 
 @defproc[
          (multishow
