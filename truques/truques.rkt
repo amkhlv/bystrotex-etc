@@ -253,18 +253,17 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                 )
              (o dir f))]
           )
-      (if (cons? relevant-files)
+
           (apply
            nested
            `(,@(if sd `(,(copy-to-clipboard #:cols 80 (path->string (path->complete-path dir)))) '())
-             ,(tbl (split-list-in-pairs relevant-files '()))))
-          (make-element
-           (make-style "bystro-autolist-nothing-found" '())
-           `("no files with extensions: "
-             ,(string-join (map symbol->string extensions) "|")))
-          )))
-    
-
+             ,(if (cons? relevant-files)
+                  (tbl (split-list-in-pairs relevant-files '()))
+                  (make-element
+                   (make-style "bystro-autolist-nothing-found" '())
+                   `("no files with extensions: "
+                     ,(string-join (map symbol->string extensions) "|")))
+                  )))))
     
   (provide (contract-out [autolist-svgs (->*
                                          ()

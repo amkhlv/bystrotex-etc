@@ -333,5 +333,45 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
    )
   )
    
-   
+(provide (proc-doc write-sexpr-as-xml (->i ([sexpr any/c]) () [result void?]) ("stream sexpr")))
+(define (write-sexpr-as-xml sexpr)
+  (cond
+    ([symbol? sexpr]
+     (begin
+       (display "<sym>")
+       (the:write-xml/content (the:xexpr->xml (symbol->string sexpr)))
+       (display "</sym>")))
+    ([string? sexpr]
+     (begin
+       (display "<txt>")
+       (the:write-xml/content (the:xexpr->xml sexpr))
+       (display "</txt>")))
+    ([number? sexpr]
+     (begin
+       (display "<num>")
+       (the:write-xml/content (the:xexpr->xml sexpr))
+       (display "</num>")))
+    ([boolean? sexpr]
+     (begin
+       (display "<bool>")
+       (the:write-xml/content (if sexpr "true" "false"))
+       (display "</bool>")))
+    ([keyword? sexpr]
+     (begin
+       (display "<kw>")
+       (the:write-xml/content (the:xexpr->xml (keyword->string sexpr)))
+       (display "</kw>")))
+    ([list? sexpr]
+     (begin
+       (display "<list>")
+       (for ([x sexpr]) (write-sexpr-as-xml x))
+       (display "</list>")))
+    ([cons? sexpr]
+     (begin
+       (display "<cons>")
+       (write-sexpr-as-xml (car sexpr))
+       (write-sexpr-as-xml (cdr sexpr))
+       (display "</cons>")))
+    )
+  )
    

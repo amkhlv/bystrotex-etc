@@ -147,7 +147,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            (style-list 
             (if numbered? 
                 (list
-                 (make-attributes (list (cons 'style "width:100%;")))
+                 (make-attributes (list (cons 'style "width:100%;border-spacing:5px;")))
                  (table-columns 
                   (list 
                    (style #f (list

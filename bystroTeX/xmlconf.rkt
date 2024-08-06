@@ -23,8 +23,8 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
   (provide (contract-out [working-directory parameter?]))
   (define working-directory (make-parameter #f))
   ;; some default values
-  (define default-sqlite-filename-in-dest-folder   "formulas.sqlite")
-  (define default-sqlite-filename-in-curdir_suffix "_formulas.sqlite")
+  (define default-sqlite-filename-in-dest-folder   "bystrotex.db")
+  (define default-sqlite-filename-in-curdir_suffix "_bystrotex.db")
 
   (provide (contract-out [xml-file->bystroconf-xexpr (-> path-string? xexpr?)]))
   (define (xml-file->bystroconf-xexpr xf)

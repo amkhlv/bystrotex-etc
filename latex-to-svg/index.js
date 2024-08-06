@@ -70,7 +70,7 @@ async function runServer() {
       const height = node.children[0].attributes.height;
       const dims = { valign : align, width : width, height: height };
       let svgString = adaptor.innerHTML(node);
-      svgString = svgString.replace(/<defs>/, `<defs><style>${CSS}</style>`)
+      //svgString = svgString.replace(/<defs>/, `<defs><style>${CSS}</style>`)
 
       fs.writeFile(obj.outpath, svgString, err => {
         if (err) {
@@ -83,6 +83,9 @@ async function runServer() {
     }
     if ('bibkey' in obj) {
       const entry = bib.getEntry(obj.bibkey);
+      if (typeof entry === "undefined") {
+        console.log(`ERROR ==== undefined entry: ${obj['bibkey']}`)
+      }
       await sock.send(
         JSON.stringify(
           {year: processBibField(entry.getField("year")),
