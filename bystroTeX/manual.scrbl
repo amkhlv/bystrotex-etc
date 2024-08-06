@@ -576,6 +576,17 @@ Runs the pipeline and returns the @racket[input-port] from its @tt{stdout}.
 (Which should eventually be closed by calling @racket[close-input-port] !)
 }
 
+@section{Conversion to LaTeX}
+
+@defproc[
+(print-latex
+ [xexprs (listof any/c)]
+ [#:extras extra-rules (-> any/c boolean?) (λ (_) #f)]
+ )
+void?
+]{
+  Convert a list of xexpressions to LaTeX
+  }
 
 @section{Legal}
 

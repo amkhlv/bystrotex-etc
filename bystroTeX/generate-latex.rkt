@@ -1,14 +1,13 @@
 (module generate-latex racket
-  (require racket/match scribble/srcdoc)
-  
-  (provide (proc-doc
-            print-latex
-            (->i  ([_ (listof any/c)])  ()  (values))
-            ("prints LaTeX")))
-  (define (print-latex xs) (map main xs) (values))
-
-  (provide main)
-  (define (main xpr)
+  (require racket/match)
+  ;(#:extras [h (-> any/c void?)])
+  (provide (contract-out
+            [print-latex (->*  ((listof any/c)) (#:extras (-> any/c boolean?)) (values))]))
+  (define (print-latex xs #:extras [h (λ (_) #f)])
+    (for ([x xs]) (main x #:extras h))
+    (values))
+  (define (main xpr #:extras extra-rules)
+    (define (main1 x) (main x #:extras extra-rules))
     (match xpr
       [`(require ,@_) (void)]
       [`(bystro-set-css-dir ,@_) = (void)]
@@ -35,84 +34,128 @@
       [`(high ,@_) (void)]
       [`(bystro-reset-colors ,@_) (void)]
       [`(bystro-scrbl-only ,@_) (void)]
+      [`(apply ,f (quasiquote ,xs)) (main1 `(,f ,@xs))]
+      [(list 'unquote x) (main1 x)]
       [`(use-LaTeX-preamble ,@xs)
        (begin
          (displayln "\n%BystroTeX-preamble-start\n")
-         (map main xs)
+         (map main1 xs)
          (displayln "\n%BystroTeX-preamble-end\n"))]
       [`(void "BystroTeX-start-appendix") (displayln "\\appendix")]
-      [`(indent ,@xs) (map main xs)]
-      [`(indent---> ,@xs) (map main xs)]
+      [`(indent ,@xs) (map main1 xs)]
+      [`(indent---> ,@xs) (map main1 xs)]
       [`(cite ,x) (printf "\\cite{~a}" x)]
       [`(seclink ,@xs) (printf "\\Section \\ref{~a}" (car xs))]
       [`(verb ,x) (printf "\\verbatim{~a}" x)]
-      [`(italic ,@xs) (begin (display "{\\it ") (map main xs) (display "}"))]
-      [`(bold ,@xs) (begin (display "{\\bf ") (map main xs) (display "}"))]
-      [`(emph ,@xs) (begin (display "{\\em ") (map main xs) (display "}"))]
-      [`(tt ,@xs) (begin (display "{\\tt ") (map main xs) (display "}"))]
-      [`(elem ,@xs) (map main xs)]
-      [`(item ,@xs) (begin (display "\\item") (map main xs) (displayln ""))]
+      [`(italic ,@xs) (begin (display "{\\it ") (map main1 xs) (display "}"))]
+      [`(bold ,@xs) (begin (display "{\\bf ") (map main1 xs) (display "}"))]
+      [`(emph ,@xs) (begin (display "{\\em ") (map main1 xs) (display "}"))]
+      [`(tt ,@xs) (begin (display "{\\tt ") (map main1 xs) (display "}"))]
+      [`(elem ,@xs) (map main1 xs)]
+      [`(item ,@xs) (begin (display "\\item ") (map main1 xs) (displayln ""))]
       [`(itemlist #:style ordered ,@xs)
-       (begin (displayln "\n\\begin{enumerate}") (map main xs) (displayln "\n\\end{enumerate}\n"))]
+       (begin (displayln "\n\\begin{enumerate}") (map main1 xs) (displayln "\n\\end{enumerate}\n"))]
       [`(itemlist ,@xs)
-       (begin (displayln "\n\\begin{itemize}") (map main xs) (displayln "\n\\end{itemize}\n"))]
+       (begin (displayln "\n\\begin{itemize}") (map main1 xs) (displayln "\n\\end{itemize}\n"))]
       [`(comment ,@xs)
-       (begin (display "\\footnote{") (map main xs) (display "}"))]
-      [`(summary ,@xs) (map main xs)]
+       (begin (display "\\footnote{") (map main1 xs) (display "}"))]
+      [`(summary ,@xs) (map main1 xs)]
       [`(larger ,@xs)
-       (begin (display "{\\large ") (map main xs) (display "}"))]
+       (begin (display "{\\large ") (map main1 xs) (display "}"))]
       [`(larger-2 ,@xs)
-       (begin (display "{\\Large ") (map main xs) (display "}"))]
+       (begin (display "{\\Large ") (map main1 xs) (display "}"))]
       [`(lsrger-3 ,@xs)
-       (begin (display "{\\LARGE ") (map main xs) (display "}"))]
+       (begin (display "{\\LARGE ") (map main1 xs) (display "}"))]
       ['noindent (display "\\noindent ")]
       [`(linebreak) (display "\n\n\\vspace{10pt}\n")]
       [`(hspace ,n) (printf "\\hspace{~a}" n)]
       [`(hrule) (display "\\rule ")]
       [`(page #:tag ,lbl ,@xs)
-       (begin (display "\\section{") (map main xs) (printf "}\\label{~a}" lbl))]
+       (begin (display "\\section{") (map main1 xs) (printf "}\\label{~a}" lbl))]
       [`(subpage 1 ,ttl #:tag ,@lbletc)
-       (begin (display "\\subsection{") (main ttl) (printf "}\\label{~a}" (car lbletc)))]
+       (begin (display "\\subsection{") (main1 ttl) (printf "}\\label{~a}" (car lbletc)))]
       [`(subpage 2 ,ttl #:tag ,@lbletc)
-       (begin (display "\\subsubsection{") (main ttl) (printf "}\\label{~a}" (car lbletc)))]
+       (begin (display "\\subsubsection{") (main1 ttl) (printf "}\\label{~a}" (car lbletc)))]
       [`(subpage 3 ,ttl #:tag ,@lbletc)
-       (begin (display "\\paragraph{") (main ttl) (printf "}\\label{~a}" (car lbletc)))]
+       (begin (display "\\paragraph{") (main1 ttl) (printf "}\\label{~a}" (car lbletc)))]
       [`(section #:tag ,tg ,@xs)
-       (begin (display "\\section{") (map main xs) (printf "}\\label{~a}" tg))]
+       (begin (display "\\section{") (map main1 xs) (printf "}\\label{~a}" tg))]
       [`(subsection #:tag ,tg ,@xs)
-       (begin (display "\\subsection{") (map main xs) (printf "}\\label{~a}" tg))]
+       (begin (display "\\subsection{") (map main1 xs) (printf "}\\label{~a}" tg))]
       [`(subsubsection #:tag ,tg ,@xs)
-       (begin (display "\\subsubsection{") (map main xs) (printf "}\\label{~a}" tg))]
+       (begin (display "\\subsubsection{") (map main1 xs) (printf "}\\label{~a}" tg))]
       [`(section ,@xs)
-       (begin (display "\\section{") (map main xs) (displayln "}"))]
+       (begin (display "\\section{") (map main1 xs) (displayln "}"))]
       [`(subsection ,@xs)
-       (begin (display "\\subsection{") (map main xs) (displayln "}"))]
+       (begin (display "\\subsection{") (map main1 xs) (displayln "}"))]
       [`(subsubsection ,@xs)
-       (begin (display "\\subsubsection{") (map main xs) (displayln "}"))]
+       (begin (display "\\subsubsection{") (map main1 xs) (displayln "}"))]
       [`(f ,@xs)
-       (begin (display "$") (map main xs) (display "$"))]
-      [`(v+ ,_ ,f) (main f)]
-      [`(v- ,_ ,f) (main f)]
-      [`(h+ ,_ ,f) (main f)]
-      [`(h- ,_ ,f) (main f)]
+       (begin (display "$") (map main1 xs) (display "$"))]
+      [`(v+ ,_ ,f) (main1 f)]
+      [`(v- ,_ ,f) (main1 f)]
+      [`(h+ ,_ ,f) (main1 f)]
+      [`(h- ,_ ,f) (main1 f)]
       [`(th-num ,x) (printf "\\refstepcounter{Theorems}\\label{~a}\\noindent{\\bf \\arabic{Theorems}}" x)]
       [`(th-ref ,x) (printf "\\ref{~a}" x)]
       [`(defn-num ,x) (printf "\\refstepcounter{Definitions}\\label{_a}\\noindent{\\bf \\arabic{Definitions}}" x)]
       [`(defn-ref ,x) (printf "\\ref{~a}" x)]
-      [`(spn attn ,@xs) (begin (display "{\\bf ") (map main xs) (display "}"))]
+      [`(spn attn ,@xs) (begin (display "{\\bf ") (map main1 xs) (display "}"))]
       [`(ref ,x) (printf "\\ref{~a}" x)]
-      [`(div s ,@xs) (begin (display "{\\bf ") (map main xs) (display "}"))]
+      [`(div s ,@xs) (begin (display "{\\bf ") (map main1 xs) (display "}"))]
       [`(hyperlink ,url ,@xs) ;TODO add blue color
-       (printf "\\href{~a}{~a}" url (with-output-to-string (λ () (map main xs))))]
+       (printf "\\href{~a}{~a}" url (with-output-to-string (λ () (map main1 xs))))]
       [`(spn attn ,@xs) ;TODO do something more expressive
-       (begin (display "{\\bf ") (map main xs) (display "}"))]
+       (begin (display "{\\bf ") (map main1 xs) (display "}"))]
       [`(e #:label ,lbl ,@xs)
-       (begin (printf "\\begin{equation}\\label{~a}" lbl) (map main xs) (display "\\end{equation}"))]
+       (begin (printf "\\begin{equation}\\label{~a}" lbl) (map main1 xs) (display "\\end{equation}"))]
       [`(e ,@xs)
-       (begin (display "\\begin{equation}") (map main xs) (display "\\end{equation}"))]
-      ; finally, to catch them all:
-      [x (display x)]
+       (begin (display "\\begin{equation}") (map main1 xs) (display "\\end{equation}"))]
+      [`(image ,x) (printf "\\includegraphics{~a}" x)]
+      [`(image #:scale ,f ,x) (printf "\\includegraphics[~a]{~a}" f x)]
+      [`(tbl #:orient ,_ `(quasiquote ,rows))
+       (begin
+         (display "\n\\begin{tabular}{")
+         (for ([_ (car rows)]) (display " | c "))
+         (displayln "| }")
+         (map main1 rows)
+         (displayln "\n\\end{tabular}"))]
+      [`(align l.n ,@xs)
+       (main1
+        `(align
+          r.l.n
+          ,@(for/list ([row xs]) 
+              (match row
+                [(list 'quasiquote `(,f ,lbl)) `("" ,f ,lbl)]
+                [`(,f ,lbl) `("" ,f ,lbl)]))))]
+      [`(align r.l.n ,@xs)
+       (letrec ([unq (λ (x)
+                       (match x
+                         [(list 'unquote y) y]
+                         [y y]))]
+                [m (λ (x)
+                     (match (unq x)
+                       [`(f ,@xs) (map main1 xs)]
+                       ["" (display "")]
+                       ))]
+                [f (λ (row)
+                     (match row
+                       [`(bystro-scrbl-only ,@rest) (display "")]
+                       [`(quasiquote ,rest) (f (apply list (map unq rest)))]
+                       [(list f1 f2 `(label ,lbl))
+                        (begin (displayln "") (m f1) (display " & ") (m f2) (printf "\\label{~a}" lbl))]
+                       [(list f1 f2 "")
+                        (begin (displayln "") (m f1) (display " & ") (m f2))]
+                       ))])
+         (display "\\begin{align}")
+         (for ([row xs]) (f row))
+         (displayln "\\end{align}"))]
+      
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      ; finally, to catch them all :
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      
+      [x (unless (extra-rules x) (display x))]
       )
     )
   )
-
