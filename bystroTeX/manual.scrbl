@@ -585,7 +585,9 @@ Runs the pipeline and returns the @racket[input-port] from its @tt{stdout}.
  )
 void?
 ]{
-  Convert a list of xexpressions to LaTeX
+  Convert a list of xexpressions to LaTeX.
+  Example of @racket[extra-rules]:
+  @racket[(λ (x) (match x ([`(mailto ,x) (begin (printf "{\\tt email: ~a }" x) #t)] [_ #f])))]
   }
 
 @section{Legal}
