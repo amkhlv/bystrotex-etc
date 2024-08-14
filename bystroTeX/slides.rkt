@@ -318,16 +318,6 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
       )
     )
   ;; ---------------------------------------------------------------------------------------------------
-  (provide (contract-out  
-            [get-bib-from-zeromq (-> string? jsexpr?)]))
-  (define (get-bib-from-zeromq k)
-    (let* ([j (make-hash `((bibkey . ,k)))])
-      (socket-send! zeromq-socket (jsexpr->bytes j))
-      (define reply (socket-recv! zeromq-socket))
-      (bytes->jsexpr reply)
-      )
-    )
-  ;; ---------------------------------------------------------------------------------------------------
   (define (bystro-command-to-typeset-formula shell-command-path texstring size bg-color fg-color filename)
                                         ; The procedure returns an integer representing the vertical offset.
     (define-values (pr outport inport errport) 

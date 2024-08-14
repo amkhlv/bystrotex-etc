@@ -24,15 +24,6 @@ const svg = new SVG({ fontCache: (FONT_CACHE ? 'local' : 'none') });
 const html = mathjax.document('', { InputJax: tex, OutputJax: svg });
 const path = require('node:path');
 
-const CSS = [
-    'svg a{fill:blue;stroke:blue}',
-    '[data-mml-node="merror"]>g{fill:red;stroke:red}',
-    '[data-mml-node="merror"]>rect[data-background]{fill:yellow;stroke:none}',
-    '[data-frame],[data-line]{stroke-width:70px;fill:none}',
-    '.mjx-dashed{stroke-dasharray:140}',
-    '.mjx-dotted{stroke-linecap:round;stroke-dasharray:0,140}',
-    'use[data-c]{stroke-width:3px}'
-].join('');
 
 const sock_dir = path.join(homedir,".local", "run");
 const bib_file = path.join(homedir, ".config", "bystrotex.bib");

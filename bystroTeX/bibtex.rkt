@@ -2,17 +2,49 @@
 
   (require racket scribble/core scribble/base)
   (require bystroTeX/slides)
-
+  (require net/zmq)
+  (require json)
+  
   (provide cite)
   (provide bibliography)
   
+  (define (get-zeromq-socket-rust)
+    (let* ([ctxt (context 1)]
+           [sock (socket ctxt 'REQ)]
+           [sock-path
+            ;(format "ipc://~a/.local/run/bystrotex.ipc" (path->string (find-system-path 'home-dir)))
+            (format "ipc://~a/.local/run/rust-extras.ipc" (path->string (find-system-path 'home-dir)))
+            ]
+           )
+      (display (format " -- connecting to ~a ~n" sock-path))
+      (socket-connect! sock sock-path)
+      (display " -- connected")
+      sock))
+  (define zeromq-socket-rust (get-zeromq-socket-rust))
   (define items '()) ; list of citations
-  
+  (provide (contract-out  
+            [get-bib-from-zeromq (-> string? jsexpr?)]))
+  (define (get-bib-from-zeromq k)
+    (let* ([j (make-hash `((req_type . "BibTeX") (payload . ,k)))])
+      (socket-send! zeromq-socket-rust (jsexpr->bytes j))
+      (define reply (socket-recv! zeromq-socket-rust))
+      (bytes->jsexpr reply)
+      )
+    )
+  ;; ---------------------------------------------------------------------------------------------------
+
+
   (define (cite x)
     (when (empty? (for/list ([y items] #:when (equal? x (car y))) #t))
       (let ([xh (get-bib-from-zeromq x)])
         (set! items (cons (cons x xh) items))))
     (elemref x x ))
+  (define (intersperse separator ls)
+    (if (or (null? ls) (null? (cdr ls)))
+        ls
+        (cons (car ls)
+              (cons separator
+                    (intersperse separator (cdr ls))))))
 
   (define (not-null? x) (and x (not (eq? 'null x))))
   (define (prepend-comma x) (if (cons? x) (cons ", " x) x))
@@ -34,7 +66,7 @@
   (define (format-bibitem bh)
     (apply 
      elem
-     `(,@(let ([a (hash-ref bh 'author #f)]) (if (not-null? a) `(,a ", ") '()))
+     `(,@(let ([aus (hash-ref bh 'authors #f)]) (if (not-null? aus) (flatten (for/list ([a aus]) `(,a . ", "))) '()))
        ,@(let ([t (hash-ref bh 'title #f)])  (if (not-null? t) `(,(format-title t)) '()))
        ,@(prepend-comma (format-journal bh))
        ,@(prepend-comma (format-eprint bh))
