@@ -89,13 +89,20 @@ After installing @hyperlink["https://racket-lang.org/"]{Racket} and
 
 @subpage[1 "Running" #:tag "sec:Running"]
 
-First run the server:
+First run the MathJax server:
 
 @verb|{
-    cd latex-to-svg/
-    npm i
-    node index.js
-    }|
+       cd latex-to-svg/
+       npm i
+       node index.js
+       }|
+
+and in a separate terminal the BibTeX server:
+
+@verb|{
+       cd Rust
+       cargo run
+       }|
 
 Then, in a separate terminal:
 
