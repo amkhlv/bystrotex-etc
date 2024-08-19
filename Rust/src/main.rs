@@ -1,13 +1,13 @@
 extern crate tokio;
 use serde::{Deserialize, Serialize};
-#[allow(unused_imports)]
-#[cfg(feature = "tokio-runtime")]
 pub use tokio::{main, test};
 mod bib;
 use bib::*;
 use serde_json::Value;
 
+use homedir::my_home;
 use std::convert::TryInto;
+use std::path::PathBuf;
 use zeromq::*;
 
 #[derive(Serialize, Deserialize)]
@@ -22,12 +22,23 @@ struct Req {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut socket_path: PathBuf = my_home()?.unwrap();
+    socket_path.push(".local");
+    socket_path.push("run");
+    socket_path.push("rust-extras.ipc");
+    if socket_path.exists() {
+        std::fs::remove_file(&socket_path)?;
+    }
+
+    let socket_url = format![
+        "ipc://{}",
+        socket_path.into_os_string().into_string().unwrap()
+    ];
+
     let bbl = get_bibliography();
-    println!("Start server");
+    println!("Starting server listening on {}", socket_url);
     let mut socket = zeromq::RepSocket::new();
-    socket
-        .bind("ipc:///home/andrei/.local/run/rust-extras.ipc")
-        .await?;
+    socket.bind(&socket_url).await?;
 
     loop {
         let repl: String = socket.recv().await?.try_into()?;
