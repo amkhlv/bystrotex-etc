@@ -32,7 +32,11 @@
         @hyperlink["mailto:example@example.com"]|{example@example.com}|
         ]]]
 
-@larger{Dear @(elem to-whom)! }
+@linebreak[]@linebreak[]
+
+@tg[p #:attrs ([class "text-2xl"])]{Dear @(elem to-whom)! }
+
+@linebreak[]@linebreak[]
 
 please read the enclosed text presenting my idea about the interpretation of the Higgs boson as a wormhole in graphene-lattice.
 
