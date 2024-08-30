@@ -4,42 +4,24 @@ const { SVG } = require('mathjax-full/js/output/svg.js');
 const { liteAdaptor } = require('mathjax-full/js/adaptors/liteAdaptor.js');
 const { RegisterHTMLHandler } = require('mathjax-full/js/handlers/html.js');
 const { AssistiveMmlHandler } = require('mathjax-full/js/a11y/assistive-mml.js');
-
 const { AllPackages } = require('mathjax-full/js/input/tex/AllPackages.js');
-
 const fs = require('node:fs');
 const zmq = require('zeromq');
 const homedir = require('os').homedir();
-
-const {parseBibFile} = require("bibtex");
+const path = require('node:path');
 
 const ASSISTIVE_MML = false, FONT_CACHE = true, INLINE = false, packages = AllPackages.sort().join(', ').split(/\s*,\s*/);
 
 const adaptor = liteAdaptor();
 const handler = RegisterHTMLHandler(adaptor);
 if (ASSISTIVE_MML) AssistiveMmlHandler(handler);
-
 const tex = new TeX({ packages });
 const svg = new SVG({ fontCache: (FONT_CACHE ? 'local' : 'none') });
 const html = mathjax.document('', { InputJax: tex, OutputJax: svg });
-const path = require('node:path');
-
 
 const sock_dir = path.join(homedir,".local", "run");
-const bib_file = path.join(homedir, ".config", "bystrotex.bib");
 if (!fs.existsSync(sock_dir)) {
   fs.mkdirSync(sock_dir);
-}
-const bib = parseBibFile(fs.readFileSync(bib_file).toString());
-
-function processBibField(field) {
-  if (field === undefined) {return null}
-  if (typeof field == "number") {
-    return field
-  } else {
-    const fdata = field.data;
-    return fdata.map(x => {try { return x.stringify() } catch (e) { return x.toString() }}).join(' ')    
-  }
 }
 
 async function runServer() {
@@ -72,27 +54,9 @@ async function runServer() {
       });
       await sock.send(JSON.stringify(dims));
     }
-    if ('bibkey' in obj) {
-      const entry = bib.getEntry(obj.bibkey);
-      if (typeof entry === "undefined") {
-        console.log(`ERROR ==== undefined entry: ${obj['bibkey']}`)
-      }
-      await sock.send(
-        JSON.stringify(
-          {year: processBibField(entry.getField("year")),
-           journal: processBibField(entry.getField("journal")),
-           volume: processBibField(entry.getField("volume")),
-           pages: processBibField(entry.getField("pages")),
-           title: processBibField(entry.getField("title")),
-           author: processBibField(entry.getField("author")),
-           }
-        )
-      );
-    }
   }
 }
 
 runServer();
- 
  
 
