@@ -41,6 +41,10 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
   (define (all-names)
     (for/list ([c (se-path*/list '(scribblings) (or (bystroconf-xexpr) 'empty))] #:when (cons? c))
       (string-trim (se-path* '(name) c))))
+  (provide (struct-out bystro-conf))
+  (struct bystro-conf
+    (name dest name.html name.scrbl formulas/ sqlite arglist multipage? style))
+                       
 
   (provide (contract-out
             [get-bystroconf (-> string? (or/c xexpr? #f))]))
@@ -51,7 +55,39 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                  (cons? y)
                  (equal? (string-trim (se-path* '(name) y)) x)))
       y))
-        
+  (provide (contract-out
+            [xexpr->bystro-conf (-> xexpr? bystro-conf?)]))
+
+  (define (xexpr->bystro-conf c)
+    (let* ([Xname (let ([v (se-path* '(name) c)]) (if v (string-trim v) #f))]
+           [Xdest (let ([v (se-path* '(dest) c)]) (if v (string-trim v) #f))]
+           [formulas-dir (let ([v (se-path* '(formulas-dir) c)]) (if v (string-trim v) #f))]
+           [sqlite-file  (let ([v (se-path* '(sqlite-file) c)]) (if v (string-trim v) #f))]
+           [Xname.html (if Xname (string->path (string-append Xname ".html")) #f)]
+           [Xname.scrbl (if Xname (string->path (string-append Xname ".scrbl")) #f)]
+           [Xformulas/ (or formulas-dir Xname)]
+           [Xarglist (flatten 
+                      (for/list ([a (se-path*/list '(args) c)] #:when (cons? a))
+                        (if (cons? (se-path*/list '(value) a))
+                            (list "++arg" 
+                                  (string-append "--" (string-trim (se-path* '(value #:key) a))) 
+                                  "++arg" 
+                                  (string-trim (se-path* '(value) a)))
+                            (list "++arg" (string-append "--" (string-trim (se-path* '(flag) a)))))))]
+           [Xmultipage? (cons?    (filter   (λ  (x)  (equal? x '(multipage ())))   c))]
+           [Xstyle (let ([v (se-path* '(style) c)]) (if v (string-trim v) #f))]
+           [X.sqlite  
+            (or sqlite-file 
+                (if Xdest
+                    (path->string (build-path Xdest default-sqlite-filename-in-dest-folder))
+                    (if Xname
+                        (if Xmultipage? 
+                            (path->string (build-path Xname default-sqlite-filename-in-dest-folder))
+                            (string-append Xname default-sqlite-filename-in-curdir_suffix))
+                        #f)))])
+      (bystro-conf Xname Xdest Xname.html Xname.scrbl Xformulas/ X.sqlite Xarglist Xmultipage? Xstyle)))
+          
+    
   (provide with-bystroconf)
   (define-syntax (with-bystroconf stx)
     (syntax-case stx ()

@@ -135,9 +135,16 @@
    c))
 
 (for ([it (items)])
-  (with-bystroconf 
-    it 
-    (name dest name.html name.scrbl formulas/ .sqlite arglist multipage?)
+  (let* ([c (xexpr->bystro-conf it)]
+         [name (bystro-conf-name c)]
+         [dest (bystro-conf-dest c)]
+         [name.html (bystro-conf-name.html c)]
+         [name.scrbl (bystro-conf-name.scrbl c)]
+         [formulas/ (bystro-conf-formulas/ c)]
+         [.sqlite (bystro-conf-sqlite c)]
+         [arglist (bystro-conf-arglist c)]
+         [multipage? (bystro-conf-multipage? c)]
+         [style (bystro-conf-style c)])
     (if (locate-html?)
         (if multipage?
             (if dest
@@ -159,6 +166,7 @@
                  "++arg" ,(if dest dest name)
                  "++arg" "--htmls"
                  ,@(if dest `("--dest" ,dest) '())
+                 ;,@(if style `("--style" ,style) '())
                  "--htmls"
                  ,name.scrbl))
               ;(run-and-show-results `("ln" "-s" "-v" ,(path->string (build-path name "index.html")) ,name.html))
@@ -169,6 +177,7 @@
                   (begin
                     (run-and-show-results
                      `("scribble"
+                       ;,@(if style `("--style" ,style) '())
                        ,@arglist
                        "++arg" "--bystro-name"
                        "++arg" ,name
@@ -178,6 +187,12 @@
                        ,name.scrbl))
                     ;(run-and-show-results `("ln" "-s" "-v" ,(path->string (build-path dest name.html)) "./"))
                     )
-                  (run-and-show-results `("scribble" ,@arglist ,name.scrbl))))))))
+                  (run-and-show-results `("scribble" ,@arglist ,name.scrbl))))))
+    (when style
+      (let-values ([(style-remover out in err)
+                    (subprocess #f #f #f (find-executable-path "rm") "-f" (build-path (dest . or . name) "scribble.css"))])
+        (subprocess-wait style-remover))
+      (copy-file style (build-path (dest . or . name) "scribble.css")))
+    ))
 
 

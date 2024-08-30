@@ -11,6 +11,7 @@
         </value>
       </args>
       <dest>profA</dest>
+      <style>tailwind.css</style>
     </scribbling>
     <scribbling>
       <name>letter</name>
@@ -23,6 +24,7 @@
         </value>
       </args>
       <dest>profB</dest>
+      <style>tailwind.css</style>
     </scribbling>
   </scribblings>
 </config>
