@@ -19,6 +19,10 @@ struct Req {
     req_type: ReqType,
     payload: Value,
 }
+#[derive(Serialize)]
+enum ErrorReport {
+    BibTeXKeyNotFound(String),
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -48,10 +52,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match req.req_type {
             ReqType::BibTeX => match req.payload {
                 Value::String(x) => {
-                    let bibitem = get_bibitem(&x, &bbl).unwrap();
+                    let bibitemr = get_bibitem(&x, &bbl);
 
-                    let reply = serde_json::to_string(&bibitem).unwrap();
-                    socket.send(reply.into()).await?
+                    if let Ok(bibitem) = bibitemr {
+                        let reply = serde_json::to_string(&bibitem).unwrap();
+                        socket.send(reply.into()).await?
+                    } else {
+                        let reply =
+                            serde_json::to_string(&ErrorReport::BibTeXKeyNotFound(x)).unwrap();
+                        socket.send(reply.into()).await?
+                    }
                 }
                 _ => panic!("unexpected request of BibTeX"),
             },

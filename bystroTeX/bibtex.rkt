@@ -37,6 +37,8 @@
   (define (cite x)
     (when (empty? (for/list ([y items] #:when (equal? x (car y))) #t))
       (let ([xh (get-bib-from-zeromq x)])
+        (when (not-null? (hash-ref xh 'BibTeXKeyNotFound #f))
+          (error (string-append "Error: BibTeXKeyNotFound: " (hash-ref xh 'BibTeXKeyNotFound #f))))
         (set! items (cons (cons x xh) items))))
     (elemref x x ))
   (define (intersperse separator ls)
