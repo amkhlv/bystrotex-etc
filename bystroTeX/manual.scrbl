@@ -578,6 +578,8 @@ Runs the pipeline and returns the @racket[input-port] from its @tt{stdout}.
 
 @section{Conversion to LaTeX}
 
+@defmodule[bystroTeX/generate-latex]
+
 @defproc[
 (print-latex
  [xexprs (listof any/c)]
@@ -588,6 +590,13 @@ void?
   Convert a list of xexpressions to LaTeX.
   Example of @racket[extra-rules]:
   @racket[(λ (x) (match x ([`(mailto ,x) (begin (printf "{\\tt email: ~a }" x) #t)] [_ #f])))]
+
+  Use from command line:
+
+  @verbatim|{
+         cat example.scrbl | racket -e '(require scribble/reader bystroTeX/generate-latex) (print-latex (read-inside))'
+         }|
+
   }
 
 @section{Legal}

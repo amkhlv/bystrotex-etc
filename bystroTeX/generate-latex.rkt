@@ -2,9 +2,32 @@
   (require racket/match)
   ;(#:extras [h (-> any/c void?)])
   (provide (contract-out
-            [print-latex (->*  ((listof any/c)) (#:extras (-> any/c boolean?)) (values))]))
-  (define (print-latex xs #:extras [h (λ (_) #f)])
-    (for ([x xs]) (main x #:extras h))
+            [get-title (->*  ((listof any/c)) (#:extras (-> any/c boolean?)) string?)]))
+  (define (get-title xs #:extras [h (λ (_) #f)])
+    (with-output-to-string
+      (λ ()(for ([xpr xs])
+             (match xpr
+               [`(title #:style ,_ ,@contents) (print-latex #:extras h contents)]
+               [`(title ,@contents) (print-latex #:extras h contents)]
+               [_ (void)])))))
+
+  (provide (contract-out
+            [get-abstract (->*  ((listof any/c)) (#:extras (-> any/c boolean?)) string?)]))
+  (define (get-abstract xs #:extras [h (λ (_) #f)])
+    (with-output-to-string
+      (λ ()(for ([xpr xs])
+             (match xpr
+               [`(bystro-abstract ,@contents) (print-latex #:extras h contents)]
+               [_ (void)])))))
+
+  (define (replace-svg-with-png x)
+    (string-replace x ".svg" ".png"))
+  (provide (contract-out
+            [print-latex (->*  ((listof any/c)) (#:extras (-> any/c boolean?) #:output-to output-port?) (values))]))
+  (define (print-latex xs #:extras [h (λ (_) #f)] #:output-to [out (current-output-port)])
+    (parameterize ([current-output-port out])
+      (for ([x xs]) (main x #:extras h))
+      )
     (values))
   (define (main xpr #:extras extra-rules)
     (define (main1 x) (main x #:extras extra-rules))
@@ -45,7 +68,7 @@
       [`(indent ,@xs) (map main1 xs)]
       [`(indent---> ,@xs) (map main1 xs)]
       [`(cite ,x) (printf "\\cite{~a}" x)]
-      [`(seclink ,@xs) (printf "\\Section \\ref{~a}" (car xs))]
+      [`(seclink ,@xs) (printf "Section \\ref{~a}" (car xs))]
       [`(verb ,x) (printf "\\verbatim{~a}" x)]
       [`(italic ,@xs) (begin (display "{\\it ") (map main1 xs) (display "}"))]
       [`(bold ,@xs) (begin (display "{\\bf ") (map main1 xs) (display "}"))]
@@ -70,8 +93,8 @@
       [`(linebreak) (display "\n\n\\vspace{10pt}\n")]
       [`(hspace ,n) (printf "\\hspace{~a}" n)]
       [`(hrule) (display "\\rule ")]
-      [`(page #:tag ,lbl ,@xs)
-       (begin (display "\\section{") (map main1 xs) (printf "}\\label{~a}" lbl))]
+      [`(page ,ttl #:tag ,lbl ,@xs)
+       (begin (display "\\section{") (main1 ttl) (printf "}\\label{~a}" lbl))]
       [`(subpage 1 ,ttl #:tag ,@lbletc)
        (begin (display "\\subsection{") (main1 ttl) (printf "}\\label{~a}" (car lbletc)))]
       [`(subpage 2 ,ttl #:tag ,@lbletc)
@@ -111,8 +134,8 @@
        (begin (printf "\\begin{equation}\\label{~a}" lbl) (map main1 xs) (display "\\end{equation}"))]
       [`(e ,@xs)
        (begin (display "\\begin{equation}") (map main1 xs) (display "\\end{equation}"))]
-      [`(image ,x) (printf "\\includegraphics{~a}" x)]
-      [`(image #:scale ,f ,x) (printf "\\includegraphics[~a]{~a}" f x)]
+      [`(image ,x) (printf "\\includegraphics{~a}" (replace-svg-with-png x))]
+      [`(image #:scale ,f ,x) (printf "\\includegraphics[scale=~a]{~a}" f (replace-svg-with-png x))]
       [`(tbl #:orient ,_ `(quasiquote ,rows))
        (begin
          (display "\n\\begin{tabular}{")
@@ -133,9 +156,16 @@
                        (match x
                          [(list 'unquote y) y]
                          [y y]))]
+                [unv (λ (x)
+                       (match x
+                         [(list 'v+ n f) f]
+                         [(list 'v- n f) f]
+                         [r r]))]
                 [m (λ (x)
-                     (match (unq x)
+                     (match (unv (unq x))
                        [`(f ,@xs) (map main1 xs)]
+                       [`(elem #:style 'no-break ,@xs)
+                        (begin (display "\\mbox{") (map main1 xs) (display "}"))]
                        ["" (display "")]
                        ))]
                 [f (λ (row)
@@ -154,8 +184,10 @@
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
       ; finally, to catch them all :
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      
-      [x (unless (extra-rules x) (display x))]
+      [`(spn TODO ,@xs) (void)]
+      [x #:when (string? x) (display x)]
+      [x (unless (extra-rules x) (printf "\\bystroTeX{~a}" x))]
       )
     )
   )
+
