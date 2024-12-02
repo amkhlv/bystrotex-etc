@@ -91,7 +91,7 @@
        (begin (display "{\\LARGE ") (map main1 xs) (display "}"))]
       ['noindent (display "\\noindent ")]
       [`(linebreak) (display "\n\n\\vspace{10pt}\n")]
-      [`(hspace ,n) (printf "\\hspace{~a}" n)]
+      [`(hspace ,n) (printf "\\hspace{~aex}" n)]
       [`(hrule) (display "\\rule ")]
       [`(page ,ttl #:tag ,lbl ,@xs)
        (begin (display "\\section{") (main1 ttl) (printf "}\\label{~a}" lbl))]
@@ -178,7 +178,11 @@
                         (begin (displayln "") (m f1) (display " & ") (m f2))]
                        ))])
          (display "\\begin{align}")
-         (for ([row xs]) (f row))
+         (f (car xs))
+         (for ([row (cdr xs)])
+           (display " \\\\")
+           (f row)
+           )
          (displayln "\\end{align}"))]
       
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
