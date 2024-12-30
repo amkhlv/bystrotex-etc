@@ -180,7 +180,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                          (current-directory)
                          (path->complete-path (simplify-path (build-path dir f))))]
                        [.pdf (path->string f)]
-                       [.pdq (path-replace-extension frel ".pdq")]
+                       [.pdq (path-replace-extension (resolve-path frel) ".pdq")]
                        [t (if st (file-or-directory-modify-seconds frel) #f)]
                        [x (if
                            (file-exists? .pdq)
