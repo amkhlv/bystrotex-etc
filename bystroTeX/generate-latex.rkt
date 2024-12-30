@@ -76,7 +76,7 @@
       [`(tt ,@xs) (begin (display "{\\tt ") (map main1 xs) (display "}"))]
       [`(elem ,@xs) (map main1 xs)]
       [`(item ,@xs) (begin (display "\\item ") (map main1 xs) (displayln ""))]
-      [`(itemlist #:style ordered ,@xs)
+      [`(itemlist #:style 'ordered ,@xs)
        (begin (displayln "\n\\begin{enumerate}") (map main1 xs) (displayln "\n\\end{enumerate}\n"))]
       [`(itemlist ,@xs)
        (begin (displayln "\n\\begin{itemize}") (map main1 xs) (displayln "\n\\end{itemize}\n"))]
@@ -130,6 +130,8 @@
        (printf "\\href{~a}{~a}" url (with-output-to-string (λ () (map main1 xs))))]
       [`(spn attn ,@xs) ;TODO do something more expressive
        (begin (display "{\\bf ") (map main1 xs) (display "}"))]
+      [`(spn TODO ,@xs) ;TODO do something more expressive
+       (begin (display "{\\LARGE \\bf ") (map main1 xs) (display "}"))]
       [`(e #:label ,lbl ,@xs)
        (begin (printf "\\begin{equation}\\label{~a}" lbl) (map main1 xs) (display "\\end{equation}"))]
       [`(e ,@xs)
@@ -183,14 +185,14 @@
            (display " \\\\")
            (f row)
            )
-         (displayln "\\end{align}"))]
+         (display "\\end{align}"))]
       
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
       ; finally, to catch them all :
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
       [`(spn TODO ,@xs) (void)]
       [x #:when (string? x) (display x)]
-      [x (unless (extra-rules x) (printf "\\bystroTeX{~a}" x))]
+      [x (unless (extra-rules x) (displayln x (current-error-port)))]
       )
     )
   )
