@@ -20,7 +20,7 @@
  [("-x" "--extra-rules-require") x.rkt "extra rules file" (set! extra-rules-file x.rkt)]
  )
 
-(define x-rules (if extra-rules-file (dynamic-require `,extra-rules-file 'rules) (λ (_) #f)))
+(define x-rules (if extra-rules-file (dynamic-require extra-rules-file 'rules) (λ (_) #f)))
 
 (unless (and input-file output-file header-file footer-file)
   (error "not all arguments are given"))
