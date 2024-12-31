@@ -8,6 +8,7 @@
 (define output-file #f)
 (define header-file #f)
 (define footer-file #f)
+(define extra-rules-file #f)
 
 (command-line
  #:program "bystroTeX to LaTeX"
@@ -16,7 +17,10 @@
  [("-o" "--output-file") o "output file (.tex)" (set! output-file o)]
  [("-t" "--header") h "header file (.tex)" (set! header-file h)]
  [("-b" "--footer") f "footer file (.tex)" (set! footer-file f)]
+ [("-x" "--extra-rules-require") x.rkt "extra rules file" (set! extra-rules-file x.rkt)]
  )
+
+(define x-rules (if extra-rules-file (dynamic-require `,extra-rules-file 'rules) (λ (_) #f)))
 
 (unless (and input-file output-file header-file footer-file)
   (error "not all arguments are given"))
@@ -36,7 +40,7 @@
                       [(regexp-match? #px"^%ABSTRACT" line) (displayln abstract o)]
                       [else (displayln line o)]))
                   (close-input-port header-input))
-                (print-latex #:output-to o (read-inside (open-input-file input-file)))
+                (print-latex #:extras x-rules #:output-to o (read-inside (open-input-file input-file)))
                 (let ([footer-input (open-input-file footer-file)])
                   (for ([line  (port->lines (open-input-file footer-file))])
                     (displayln line o))
