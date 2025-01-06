@@ -18,7 +18,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 |#
 
 (module truques racket
-  (require scribble/core scribble/base scribble/html-properties scribble/decode scriblib/render-cond racket/string racket/path racket/date)
+  (require scribble/core scribble/base scribble/html-properties scribble/decode scriblib/render-cond racket/string racket/path racket/date racket/port)
   (require bystroTeX/common)
   (require xml/path (prefix-in the: xml))
   (require "xml.rkt")
@@ -264,6 +264,28 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                    `("no files with extensions: "
                      ,(string-join (map symbol->string extensions) "|")))
                   )))))
+  (define (xmlstarlet-desc path)
+    (let*-values
+        ([(sel-proc   sel-stdout sel-stdin            sel-stderr)
+          (subprocess #f         (current-input-port) (current-error-port)
+                      #f
+                      (find-executable-path "xmlstarlet")
+                      "sel" "-N" "s=http://www.w3.org/2000/svg"  "-t" "-v" "//s:desc" path)]
+         [(unesc-proc unesc-stdout unesc-stdin unesc-stderr)
+          (subprocess #f           sel-stdout  (current-error-port)
+                      #f
+                      (find-executable-path "xmlstarlet")
+                      "unesc")])
+      (subprocess-wait sel-proc)
+      (let ([results (port->list read-line unesc-stdout)]
+            )
+        (close-input-port sel-stdout)
+        (close-input-port unesc-stdout)
+        results)
+      ))
+      
+      
+           
     
   (provide (contract-out [autolist-svgs (->*
                                          ()
@@ -308,6 +330,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                         `(,(element
                             (style #f '())
                             (for/list ([k ks])
+                              (displayln k)
                               (element
                                (style #f '())
                                `(,(element
@@ -328,34 +351,30 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            #:output (λ (d f)
                       (tbl `(
                              ,@(if annot
-                                   (let* ([in (open-input-file (build-path d f))]
-                                          [doc (the:read-xml in)]
-                                          [root (the:xml->xexpr (the:document-element doc))]
-                                          )
-                                     (close-input-port in)
-                                     `((,(let ([ans (se-path*/list '(desc) root)])
-                                          (if (cons? ans)
-                                              (element
-                                               (make-style #f '())
-                                               `(,(element
-                                                   (make-style "bystro-svg-annotation-tag-link" '())
-                                                   `(,(elemref `(bystro-svg-annot-top ,tag-prefix) "up")))
-                                                 ,(hspace 1)
-                                                 ,(element
-                                                   (make-style #f '())
-                                                   `(,@(for/list ([annotation ans])
-                                                         (let ([n (gensym "no")]
-                                                               )
-                                                           (hash-set! svg-annotations `(,tag-prefix ,n) annotation)
-                                                           (element
-                                                            (make-style #f '())
-                                                            `(,(element
-                                                                (make-style "bystro-svg-annotation-tag" '())
-                                                                `(,(elemtag `(bystro-svg-annot ,tag-prefix ,n) annotation)))
-                                                              ,(hspace 1)))))))))
-                                              (element
+
+                                   `((,(let ([ans (xmlstarlet-desc (build-path d f))])
+                                         (if (cons? ans)
+                                             (element
+                                              (make-style #f '())
+                                              `(,(element
                                                   (make-style "bystro-svg-annotation-tag-link" '())
-                                                  `(,(elemref `(bystro-svg-annot-top ,tag-prefix) "up"))))))))
+                                                  `(,(elemref `(bystro-svg-annot-top ,tag-prefix) "up")))
+                                                ,(hspace 1)
+                                                ,(element
+                                                  (make-style #f '())
+                                                  `(,@(for/list ([annotation ans])
+                                                        (let ([n (gensym "no")]
+                                                              )
+                                                          (hash-set! svg-annotations `(,tag-prefix ,n) annotation)
+                                                          (element
+                                                           (make-style #f '())
+                                                           `(,(element
+                                                               (make-style "bystro-svg-annotation-tag" '())
+                                                               `(,(elemtag `(bystro-svg-annot ,tag-prefix ,n) annotation)))
+                                                             ,(hspace 1)))))))))
+                                             (element
+                                              (make-style "bystro-svg-annotation-tag-link" '())
+                                              `(,(elemref `(bystro-svg-annot-top ,tag-prefix) "up")))))))
                                    '())
                              ,@`((,(hyperlink (build-path d f) (image #:scale scale (build-path d f))))
                                  (,(path->string f)))
