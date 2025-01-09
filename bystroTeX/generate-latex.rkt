@@ -121,7 +121,7 @@
       [`(h- ,_ ,f) (main1 f)]
       [`(th-num ,x) (printf "\\refstepcounter{Theorems}\\label{~a}\\noindent{\\bf \\arabic{Theorems}}" x)]
       [`(th-ref ,x) (printf "\\ref{~a}" x)]
-      [`(defn-num ,x) (printf "\\refstepcounter{Definitions}\\label{_a}\\noindent{\\bf \\arabic{Definitions}}" x)]
+      [`(defn-num ,x) (printf "\\refstepcounter{Definitions}\\label{~a}\\noindent{\\bf \\arabic{Definitions}}" x)]
       [`(defn-ref ,x) (printf "\\ref{~a}" x)]
       [`(spn attn ,@xs) (begin (display "{\\bf ") (map main1 xs) (display "}"))]
       [`(ref ,x) (printf "\\ref{~a}" x)]
