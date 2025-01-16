@@ -26,14 +26,15 @@
 (call-with-output-file
   output-file
   #:exists 'replace
-  (λ (out) 
-    (define title (get-title (read-inside (open-input-file input-file)))) 
+  (λ (out)
+    (define title (get-title (read-inside (open-input-file input-file))))
     (define abstract (get-abstract (read-inside (open-input-file input-file))))
     (let-values ([(i o) (make-pipe)])
       (thread (λ ()
                 (fprintf o "= ~a\n" title)
                 (fprintf o ":bibtex-file: ~a\n" bibtex-file)
                 (displayln ":stem: latexmath\n" o)
+                (displayln ":mathematical-format: svg\n" o)
                 (print-adoc #:extras x-rules #:output-to o (read-inside (open-input-file input-file)))
                 (displayln "bibliography::[]" o)
                 (close-output-port o)

@@ -69,7 +69,7 @@
       [`(indent---> ,@xs) (map main1 xs)]
       [`(cite ,x) (printf "cite:[~a]" x)]
       ;[`(cite ,x) (printf "<<~a>>" x)]
-      [`(seclink ,@xs) (printf "<<~a,Section ~a>>" (car xs) (car xs))]
+      [`(seclink ,@xs) (printf "<<~a,~a>>" (car xs) (car xs))]
       [`(verb ,x) (printf "`+~a+`" x)]
       [`(italic ,@xs) (begin (display "_") (map main1 xs) (display "_"))]
       [`(bold ,@xs) (begin (display "__") (map main1 xs) (display "__"))]
@@ -134,9 +134,9 @@
       [`(spn TODO ,@xs) ;TODO do something more expressive
        (begin (display "{\\LARGE \\bf ") (map main1 xs) (display "}"))]
       [`(e #:label ,lbl ,@xs)
-       (begin (printf "[[~a]]\n[latexmath]\n++++" lbl) (map main1 xs) (display "\n++++\n"))]
+       (begin (printf "[[~a]]\n[stem]\n++++\n" lbl) (map main1 xs) (display "\n++++\n"))]
       [`(e ,@xs)
-       (begin (display "\n[latexmath]\n++++") (map main1 xs) (display "\n++++\n"))]
+       (begin (display "\n[stem]\n++++\n") (map main1 xs) (display "\n++++\n"))]
       [`(image ,x) (printf "\\includegraphics{~a}" (replace-svg-with-png x))]
       [`(image #:scale ,f ,x) (printf "\\includegraphics[scale=~a]{~a}" f (replace-svg-with-png x))]
       [`(tbl #:orient ,_ `(quasiquote ,rows))
@@ -146,6 +146,53 @@
          (displayln "| }")
          (map main1 rows)
          (displayln "\n\\end{tabular}"))]
+      [`(align r.l.n ,@xs)
+       (letrec ([unq (λ (x)
+                       (match x
+                         [(list 'unquote y) y]
+                         [y y]))]
+                [unv (λ (x)
+                       (match x
+                         [(list 'v+ n f) f]
+                         [(list 'v- n f) f]
+                         [r r]))]
+                [m (λ (x)
+                     (match (unv (unq x))
+                       [`(f ,@xs) (main1 `(f ,@xs))]
+                       [`(elem #:style 'no-break ,@xs)
+                        (map main1 xs)]
+                       ["" (display "")]
+                       ))]
+                [f (λ (row)
+                     (match row
+                       [`(bystro-scrbl-only ,@rest) (display "")]
+                       [`(quasiquote ,rest) (f (apply list (map unq rest)))]
+                       [(list f1 f2 `(label ,lbl))
+                        (begin (displayln "")
+                               (display   "| ") (m f1)
+                               (display "\n| ") (m f2)
+                               (display "\n| ") (printf "[[~a]]" lbl)
+                               (displayln "")
+                               (displayln "")
+                               )
+                        ]
+                       [(list f1 f2 label)
+                        (begin (displayln "")
+                               (display   "| ") (m f1)
+                               (display "\n| ") (m f2)
+                               (printf "\n| ~a\n" label)
+                               (displayln "")
+                               (displayln "")
+                               )
+                        ]
+                       ))])
+         (displayln "[cols=\">10,<20,1\",grid=none,frame=none]")
+         (displayln "|===")
+         (f (car xs))
+         (for ([row (cdr xs)])
+           (f row)
+           )
+         (displayln "|==="))]
       
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
       ; finally, to catch them all :
