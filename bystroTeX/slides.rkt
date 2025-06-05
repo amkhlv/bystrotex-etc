@@ -207,7 +207,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
             [page (->* (content?) 
                        (#:tag (or/c symbol? string? #f) #:showtitle boolean?) 
                        pre-part?)]))
-  (define (page stitle #:tag [tg #f] #:showtitle [sttl #f])
+  (define (page stitle #:tag [tg #f] #:showtitle [sttl #t])
     (set-current-slide-number! state (+ 1 (current-slide-number state)))
     (set-current-slidename! state (if tg tg (regexp-replace #px"\\s" stitle "_")))
     (set-current-slide-part-number! state 0)

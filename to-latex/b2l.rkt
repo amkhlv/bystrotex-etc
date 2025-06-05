@@ -9,6 +9,7 @@
 (define header-file #f)
 (define footer-file #f)
 (define extra-rules-file #f)
+(define page #f)
 
 (command-line
  #:program "bystroTeX to LaTeX"
@@ -17,6 +18,7 @@
  [("-o" "--output-file") o "output file (.tex)" (set! output-file o)]
  [("-t" "--header") h "header file (.tex)" (set! header-file h)]
  [("-b" "--footer") f "footer file (.tex)" (set! footer-file f)]
+ [("-p" "--page") p "page" (set! page p)]
  [("-x" "--extra-rules-require") x.rkt "extra rules file" (set! extra-rules-file x.rkt)]
  )
 
@@ -40,7 +42,7 @@
                       [(regexp-match? #px"^%ABSTRACT" line) (displayln abstract o)]
                       [else (displayln line o)]))
                   (close-input-port header-input))
-                (print-latex #:extras x-rules #:output-to o (read-inside (open-input-file input-file)))
+                (print-latex #:page page #:extras x-rules #:output-to o (read-inside (open-input-file input-file)))
                 (let ([footer-input (open-input-file footer-file)])
                   (for ([line  (port->lines (open-input-file footer-file))])
                     (displayln line o))

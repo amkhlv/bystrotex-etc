@@ -22,15 +22,22 @@
 
   (define (replace-svg-with-png x)
     (string-replace x ".svg" ".png"))
+  (define current-page #f)
   (provide (contract-out
-            [print-adoc (->*  ((listof any/c)) (#:extras (-> any/c boolean?) #:output-to output-port?) (values))]))
-  (define (print-adoc xs #:extras [h (λ (_) #f)] #:output-to [out (current-output-port)])
+            [print-adoc (->*  ((listof any/c)) (#:page (or/c #f string?) #:extras (-> any/c boolean?) #:output-to output-port?) (values))]))
+  (define (print-adoc xs #:page [p #f] #:extras [h (λ (_) #f)] #:output-to [out (current-output-port)])
     (parameterize ([current-output-port out])
-      (for ([x xs]) (main x #:extras h))
+      (for ([x xs]) (main x p #:extras h))
       )
     (values))
-  (define (main xpr #:extras extra-rules)
-    (define (main1 x) (main x #:extras extra-rules))
+  (define (main xpr req-pg #:extras extra-rules)
+    (define (main1 x) (main x req-pg #:extras extra-rules))
+    (define (disp y)
+      (when (or (not req-pg) (equal? current-page req-pg))
+        (display y)))
+    (define (displn y)
+      (when (or (not req-pg) (equal? current-page req-pg))
+        (displayln y)))
     (match xpr
       [`(require ,@_) (void)]
       [`(bystro-set-css-dir ,@_) = (void)]
@@ -95,13 +102,23 @@
       [`(hspace ,n) (printf "\\hspace{~aex}" n)]
       [`(hrule) (display "\\rule ")]
       [`(page ,ttl #:tag ,lbl ,@xs)
-       (begin (printf "== [[~a]] " lbl) (main1 ttl))]
+       (begin
+         (set! current-page lbl)
+         (if req-pg
+             (begin (printf "= [[~a]] " lbl) (main1 ttl))
+             (begin (printf "== [[~a]] " lbl) (main1 ttl))))]
       [`(subpage 1 ,ttl #:tag ,@lbletc)
-       (begin (printf "=== [[~a]] " (car lbletc)) (main1 ttl))]
+       (if req-pg
+           (begin (printf "== [[~a]] " (car lbletc)) (main1 ttl))
+           (begin (printf "=== [[~a]] " (car lbletc)) (main1 ttl)))]
       [`(subpage 2 ,ttl #:tag ,@lbletc)
-       (begin (printf "==== [[~a]] " (car lbletc)) (main1 ttl))]
+       (if req-pg
+           (begin (printf "=== [[~a]] " (car lbletc)) (main1 ttl))
+           (begin (printf "==== [[~a]] " (car lbletc)) (main1 ttl)))]
       [`(subpage 3 ,ttl #:tag ,@lbletc)
-       (begin (printf "===== [[~a]] " (car lbletc)) (main1 ttl))]
+       (if req-pg
+           (begin (printf "==== [[~a]] " (car lbletc)) (main1 ttl))
+           (begin (printf "===== [[~a]] " (car lbletc)) (main1 ttl)))]
       [`(section #:tag ,tg ,@xs)
        (begin (printf "= [[~a]] " tg) (map main1 xs))]
       [`(subsection #:tag ,tg ,@xs)

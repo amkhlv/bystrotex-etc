@@ -8,6 +8,7 @@
 (define output-file #f)
 (define bibtex-file #f)
 (define extra-rules-file #f)
+(define page #f)
 
 (command-line
  #:program "bystroTeX to AsciiDoc"
@@ -15,6 +16,7 @@
  [("-i" "--input-file") i "input file (.scrbl)" (set! input-file i)]
  [("-o" "--output-file") o "output file (.adoc)" (set! output-file o)]
  [("-b" "--bibtex-file") b "BibTeX file (.bib)" (set! bibtex-file b)]
+ [("-p" "--page") p "page" (set! page p)]
  [("-x" "--extra-rules-require") x.rkt "extra rules file" (set! extra-rules-file x.rkt)]
  )
 
@@ -35,7 +37,7 @@
                 (fprintf o ":bibtex-file: ~a\n" bibtex-file)
                 (displayln ":stem: latexmath\n" o)
                 (displayln ":mathematical-format: svg\n" o)
-                (print-adoc #:extras x-rules #:output-to o (read-inside (open-input-file input-file)))
+                (print-adoc #:page page #:extras x-rules #:output-to o (read-inside (open-input-file input-file)))
                 (displayln "bibliography::[]" o)
                 (close-output-port o)
                 ))
