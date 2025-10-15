@@ -22,10 +22,12 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
   (require bystroTeX/common)
   (require xml/path (prefix-in the: xml))
   (require "xml.rkt")
+  (require "pdq.rkt")
   (define copy-tag-num 0)
 
   (define svg-annotations (make-hash))
 
+  (provide (all-from-out "pdq.rkt"))
   (provide explain)
   (define-syntax explain
     (syntax-rules ()
@@ -161,19 +163,32 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
           (make-style #f (list (alt-tag "span") (attributes `(,(cons 'class "bystro-checkmark")))))
           '()))
       )))
-
+  
   (provide (contract-out [autolist-pdfs (->*
                                          ()
                                          (#:dir path-string?
                                           #:showtime boolean?
-                                          #:filter (path-for-some-system? . -> . boolean?))
+                                          #:filter (path-for-some-system? . -> . boolean?)
+                                          #:tags (listof symbol?)
+                                          )
                                          (or/c table? element?))]))
-  (define (autolist-pdfs #:dir [dir (build-path 'same)] #:showtime [st #f] #:filter [flt (lambda (p) #t)])
+  (define (autolist-pdfs
+           #:dir [dir (build-path 'same)]
+           #:showtime [st #f]
+           #:filter [flt (lambda (p) #t)]
+           #:tags [tgs '()]
+           )
     (autolist
      #:exts '(pdf PDF)
      #:dir dir
      #:header `(,(bold "summary") ,@(if st (list (bold "time")) '()) ,(bold "PDF"))
-     #:filter flt
+     #:filter (λ (p)
+                (and
+                 (flt p)
+                 (let ([file.pdq (build-path dir (path-replace-extension p ".pdq"))])
+                   (or
+                    (not (file-exists? file.pdq))
+                    (for/and ([atag tgs]) (member (symbol->string atag) (pdq-tags file.pdq)))))))
      #:output (lambda (f)
                 (let* ([frel
                         (find-relative-path
@@ -191,7 +206,18 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                   `(
                     ,(if
                       summary
-                      (show-xexpr (cons 'rt (se-path*/list '(summary) x)))
+                      (show-xexpr
+                       #:transform-to-content
+                       (hash-set (transform-to-content)
+                                 'tag
+                                 (λ (y)
+                                   (make-element
+                                    (make-style "bystro-pdq-tag" '())
+                                    (caddr y))))
+                       (cons
+                        'rt
+                        (append (se-path*/list '(summary) x) (se-path*/list '(tags) x)))
+                       )
                       "")
                     ,@(if t (list (smaller (date->string (seconds->date t)))) '())
                     ,(hyperlink frel .pdf))))))
