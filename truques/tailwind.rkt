@@ -21,8 +21,6 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
 
 (require racket/base)
-;(require bystroTeX/common)
-;(require scribble/core scribble/base scribble/html-properties scribble/decode)
 
 (require scribble/srcdoc scribble/core scribble/base 
          (for-doc scribble/base scribble/manual))

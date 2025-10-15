@@ -97,7 +97,9 @@ First run the MathJax server:
        node index.js
        }|
 
-and in a separate terminal the BibTeX server:
+if you want to use BibTeX, you have to
+symlink your BibTeX file to @tt{~/.config/bystrotex.bib}. Then,
+in a separate terminal, start the BibTeX server:
 
 @verb|{
        cd Rust

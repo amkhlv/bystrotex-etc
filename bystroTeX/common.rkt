@@ -546,11 +546,11 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            (let* ([link-rel-to-rt
                    (if multipage?
                        (build-path p name "index.html")
-                       (build-path p (if dest (string-append dest "/") 'same) (path->string name.html)))]
+                       (build-path p (dest . or . 'same) (path->string name.html)))]
                   [link
                    (if (absolute-path? link-rel-to-rt)
                        link-rel-to-rt
-                       (path->string (build-path (if (or Cmultipage? Cdest) "../" 'same) link-rel-to-rt)))])
+                       (path->string (build-path  (if (or Cmultipage? Cdest) 'up 'same) link-rel-to-rt)))])
              (elem 
               (if (file-exists? link-rel-to-rt)
                   (hyperlink 

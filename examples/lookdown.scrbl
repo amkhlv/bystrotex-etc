@@ -99,14 +99,15 @@
                    (postgre:query-exec
                     pgc
                     "insert into lookdown values ($1,$2,$3)" ;(scrbl,html,content)
-                    (path->string (build-path bystrotex-dir name.scrbl))
+                    (path->string (simplify-path (build-path bystrotex-dir name.scrbl)))
                     (path->string
+                     (simplify-path
                      (build-path
                       bystrotex-dir
                       (if multipage? name (or dest "./"))
                       (if multipage? "index.html" name.html)
-                      ))
-                    (file->string (build-path bystrotex-dir name.scrbl))
+                      )))
+                    (file->string (simplify-path (build-path bystrotex-dir name.scrbl)))
                     )
                    )))
              (part 
