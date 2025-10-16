@@ -128,7 +128,7 @@ files whose accompanying @tt{.pdq} files contain the listed tags are shown.
                                            (find-relative-path
                                             (current-directory)
                                             (path->complete-path (simplify-path (build-path d f))))))))
-                                    '()))))]
+                                    '())))))]
                  )
 (or/c nested-flow? element?)
 ]{
