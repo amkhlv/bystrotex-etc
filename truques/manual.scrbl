@@ -21,10 +21,10 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
 @(require scribble/manual
           scribble/extract
-          (for-label racket  
-                     scribble/core 
-                     scribble/base 
-                     scribble/html-properties 
+          (for-label racket
+                     scribble/core
+                     scribble/base
+                     scribble/html-properties
                      scribble/decode
                      scriblib/render-cond
                      (prefix-in the: xml)
@@ -33,9 +33,11 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                      yaml
                      bystroTeX/common
                      "truques.rkt"
+                     "dhall.rkt"
                      "xml.rkt"
                      "sqlite.rkt"
                      "terminal.rkt"
+                     "yaml.rkt"
                      ))
 @(require bystroTeX/common "truques.rkt")
 
@@ -200,6 +202,20 @@ This prints @tt{x} to four decimal places:
 (~r #:precision '(= 4) x)
 }--|
 
+@section{YAML}
+
+@defmodule[truques/yaml]
+
+@defproc[
+ (yaml-to-clips
+  [y yaml?]
+  [#:rows rows (or/c integer? #f) 1]
+  [#:cols cols (or/c integer? #f) 50])
+ block?]{
+Converts YAML data into Scribble output, rendering collections as tables or lists
+and scalars as @racket[copy-to-clipboard] fields for easy reuse.
+}
+
 @section{XML}
 @defmodule[truques/xml]
 
@@ -341,6 +357,23 @@ see @hyperlink["https://en.wikipedia.org/wiki/File:Xterm_256color_chart.svg"]{Xt
 @defproc[(ansi-blink [x string?]) string?]{blinking}
 @defproc[(ansi-reverse [x string?]) string?]{reverse}
 @defproc[(ansi-clear-screen) any/c]{clear screen}
+
+@section{Dhall}
+
+@defmodule[truques/dhall]
+
+@defproc[
+ (dhall
+  [#:dir dir (or/c path-string? #f) #f]
+  [#:output output-type (or/c 'json 'yaml 'type 'dhall) 'yaml]
+  [#:yaml-printer yaml-printer (or/c #f (-> yaml? block?)) #f]
+  [#:rest code (listof string?)])
+ block?]{
+Evaluates Dhall source by invoking the system executables (such as
+@tt{dhall-to-yaml}) in an optional working directory. The result is returned as
+a Scribble block, and YAML output can be post-processed with
+@racket[yaml-printer].
+}
 
 @section{Multishow}
 
