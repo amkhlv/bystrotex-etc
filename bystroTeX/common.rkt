@@ -27,15 +27,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
   (require "xmlconf.rkt" xml/path)
   (require (for-syntax racket/syntax))
 ;; ---------------------------------------------------------------------------------------------------
-  (define dump-LaTeX? #f)
-  (provide dumping-LaTeX?)
-  (define dumping-LaTeX? (make-parameter #f))
-  (provide bystro-common-dump-LaTeX)
-  (define (bystro-common-dump-LaTeX b) (dumping-LaTeX? b))
-  (provide bystro-dump-LaTeX-with-$)
-  (define bystro-dump-LaTeX-with-$ (make-parameter #t))
 
-;; ---------------------------------------------------------------------------------------------------
   (provide (contract-out
             ; Get the name without extention
             [get-bystro-scrbl-name (-> string?)]))

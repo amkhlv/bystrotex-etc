@@ -43,10 +43,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
   ;; ------------------ start of compatibility block ---------------------
 
-  (provide bystro-dump-LaTeX?)
-  (define  bystro-dump-LaTeX? #f)
-  (provide bystro-dump-LaTeX)
-  (define (bystro-dump-LaTeX x) (set! bystro-dump-LaTeX? x))
+
   (provide bystroserver)
   (define-struct/contract bystroserver 
     ([connection net:http-conn?] 
@@ -59,7 +56,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
      )
     #:mutable)
   (provide (contract-out [struct bystro
-                           ([formula-processor (or/c 'running-without-LaTeX-server bystroserver?)]
+                           (
                             [formula-database-name path-string?]
                             [formula-dir-name path-string?]
                             [formula-size integer?]
@@ -68,7 +65,6 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                             [autoalign-adjust integer?]
                             [manual-base-alignment integer?])]))
   (struct bystro (
-                  formula-processor
                   formula-database-name
                   formula-dir-name
                   formula-size
@@ -82,7 +78,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
   (define (bystro-connect-to-server x) 'running-without-LaTeX-server)
   (provide set-bystro-extension!)
   (define (set-bystro-extension! x y) '())
-  (define configuration (bystro 'running-without-LaTeX-server
+  (define configuration (bystro 
                                 "bystrotex.db"
                                 "formulas"
                                 25
