@@ -431,6 +431,10 @@ a Scribble block, and YAML output can be post-processed with
 
 @(include-extracted truques/pdq)
 
+@defmodule[truques/md]
+
+@(include-extracted truques/md)
+
 @section{Legal}
 
 Copyright 2012,2013,2014 Andrei Mikhailov
