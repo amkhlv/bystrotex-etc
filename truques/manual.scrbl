@@ -292,7 +292,7 @@ string?
 Replaces dollar sign with underscore. Useful for SQLITE queries.
 }
 
-@(include-extracted truques/xml)
+@include-extracted[truques/xml]
 
 
 @section{SQLite tables}
@@ -417,23 +417,25 @@ a Scribble block, and YAML output can be post-processed with
 
 @defmodule[truques/docx]
 
-@(include-extracted truques/docx)
+@include-extracted[truques/docx]
 
 @section{Tailwind CSS}
 
 @defmodule[truques/tailwind]
 
-@(include-extracted truques/tailwind)
+@include-extracted[truques/tailwind]
 
 @section{PdQ}
 
 @defmodule[truques/pdq]
 
-@(include-extracted truques/pdq)
+@include-extracted[truques/pdq]
+
+@section{Markdown}
 
 @defmodule[truques/md]
 
-@(include-extracted truques/md)
+@include-extracted[truques/md]
 
 @section{Legal}
 
