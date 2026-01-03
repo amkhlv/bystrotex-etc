@@ -22,29 +22,32 @@
    (proc-doc/names
     md-file-show
     (->* (pre-part? #:file path-string?)
-         (#:tag (or/c string? #f))
+         (#:tag (or/c string? #f)
+          #:level integer?
+          )
          part?)
-    ((title file-path) ((tag #f)))
-    ("Read Markdown from a file and show it as a part")))
-  (define (md-file-show ttl #:file p #:tag [t #f])
+    ((title file-path) ((tag #f) (level 0)))
+    ("Read Markdown from a file and show it as a part. If the Markdown toplevel is at ## (rather than #), then level should be set to 1.")))
+  (define (md-file-show ttl #:file p #:tag [t #f] #:level [level 0])
     (decode-part
      (md-file->parts p)
      (if t `(,t) '())
      `(,ttl)
-     0))
+     level))
 
   (provide
    (proc-doc
     md-show
     (->i ([title pre-part?])
-         (#:tag [tag (or/c string? #f)])
+         (#:tag [tag (or/c string? #f)]
+          #:level [level integer?]
+          )
          #:rest [lines (listof string?)]
          [result part?])
-    (#f)
-    ("Show Markdown as a part")))
+    (#f 0)
+    ("Show Markdown as a part. If the Markdown toplevel is at ## (rather than #), then level should be set to 1.")))
 
-
-  (define (md-show title #:tag [tag #f] . lines)
+  (define (md-show title #:tag [tag #f] #:level [level 0] . lines)
     (decode-part
      (parameterize ([current-input-port
                      (open-input-string (apply string-append lines))])
@@ -52,7 +55,7 @@
          (xexprs->scribble-pres (read-markdown))))
      (if tag (list tag) '())
      (list title)
-     0))
+     level))
 
 
 
