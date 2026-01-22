@@ -15,7 +15,7 @@
       [(block? x) x]
       [else (para x)]))
 
-  (define (dir->part dir fmt)
+  (define (dir->part dir fmt subparts)
     (define direct-subdirs
       (for/list ([p (in-list (directory-list dir #:build? #t))]
                  #:when (directory-exists? p))
@@ -28,26 +28,30 @@
      (style "bystro-traverse" '())        ; style
      '()                                  ; to-collect
      (map as-block (fmt dir))             ; blocks
-     (for/list ([sd (in-list direct-subdirs)])
-       (dir->part sd fmt))))              ; parts
+     `(,@(subparts dir)
+       ,@(for/list ([sd (in-list direct-subdirs)])
+           (dir->part sd fmt subparts))
+       )              ; parts
+     )
+    )
 
-
-  (provide (proc-doc/names
-            bystro-traverse-dir
-            (->* (pre-part?
-                  #:dir path?
-                  #:show (-> path? (listof (or/c block? element?)))
-                  )
-                 (#:tag (or/c string? #f)
-                  )
-                 part?)
-            ((title start-in-dir fmt) ((tag #f)))
-            ("traverse and show directories")))
+  (provide
+   (proc-doc/names
+    bystro-traverse-dir
+    (->* (pre-part?
+          #:dir path?
+          #:show (-> path? (listof (or/c block? element?))))
+         (#:subparts (-> path? (listof part?))
+          #:tag (or/c string? #f))
+         part?)
+    ((title start-in-dir fmt) ((subparts (λ (p) '())) (tag #f)))
+    ("traverse and show directories")))
 
   (define (bystro-traverse-dir title
                                #:dir start-in-dir
                                #:show fmt
                                #:tag [tag #f]
+                               #:subparts [subparts (λ (p) '())]
                                )
     (make-part
      #f                                   ; tag-prefix
@@ -56,6 +60,6 @@
      (style #f '())                       ; style
      '()                                  ; to-collect
      '()                                  ; blocks
-     (list (dir->part start-in-dir fmt)))) ; parts
+     (list (dir->part start-in-dir fmt subparts)))) ; parts
 
   )
