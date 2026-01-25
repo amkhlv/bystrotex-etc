@@ -15,7 +15,7 @@
       [(block? x) x]
       [else (para x)]))
 
-  (define (dir->part dir fmt subparts)
+  (define (dir->part dir filt fmt subparts)
     (define direct-subdirs
       (for/list ([p (in-list (directory-list dir #:build? #t))]
                  #:when (directory-exists? p))
@@ -29,8 +29,8 @@
      '()                                  ; to-collect
      (map as-block (fmt dir))             ; blocks
      `(,@(subparts dir)
-       ,@(for/list ([sd (in-list direct-subdirs)])
-           (dir->part sd fmt subparts))
+       ,@(for/list ([sd (in-list direct-subdirs)] #:when (filt sd))
+           (dir->part sd filt fmt subparts))
        )              ; parts
      )
     )
@@ -41,14 +41,16 @@
     (->* (pre-part?
           #:dir path?
           #:show (-> path? (listof (or/c block? element?))))
-         (#:subparts (-> path? (listof part?))
+         (#:filter (-> path? boolean?)
+          #:subparts (-> path? (listof part?))
           #:tag (or/c string? #f))
          part?)
-    ((title start-in-dir fmt) ((subparts (λ (p) '())) (tag #f)))
+    ((title start-in-dir fmt) ((filt (λ (p) #t)) (subparts (λ (p) '())) (tag #f)))
     ("traverse and show directories")))
 
   (define (bystro-traverse-dir title
                                #:dir start-in-dir
+                               #:filter [filt (λ (p) #t)]
                                #:show fmt
                                #:tag [tag #f]
                                #:subparts [subparts (λ (p) '())]
@@ -60,6 +62,6 @@
      (style #f '())                       ; style
      '()                                  ; to-collect
      '()                                  ; blocks
-     (list (dir->part start-in-dir fmt subparts)))) ; parts
+     (list (dir->part start-in-dir filt fmt subparts)))) ; parts
 
   )

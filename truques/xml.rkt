@@ -28,6 +28,33 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
 (provide (all-from-out xml/path) (all-from-out racket/format))
 
+
+
+
+
+(define (xexpr-element? v)
+  (and (pair? v) (symbol? (car v))))
+
+(define (xexpr-select xe pred)
+  (for/list ([v (in-list (se-path*/list '() xe))]
+             #:when (and (xexpr-element? v) (pred v)))
+    v))
+
+(define (xexpr-elements tag xe)
+  (xexpr-select xe (λ (v) (eq? (car v) tag))))
+
+(define (xexpr-elements* tags xe)
+  (define ht (for/hasheq ([t (in-list tags)]) (values t #t)))
+  (xexpr-select xe (λ (v) (hash-has-key? ht (car v)))))
+
+(provide
+ (contract-out
+  [xexpr-element? (-> any/c boolean?)]
+  [xexpr-select   (-> any/c (-> any/c any/c) (listof xexpr-element?))]
+  [xexpr-elements (-> symbol? any/c (listof xexpr-element?))]
+  [xexpr-elements* (-> (listof symbol?) any/c (listof xexpr-element?))]))
+
+
 (provide (contract-out [file->xexpr (-> path-string? the:xexpr?)]))
 (define  (file->xexpr x)
   (call-with-input-file x

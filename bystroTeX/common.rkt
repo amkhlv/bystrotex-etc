@@ -37,7 +37,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
             [get-bystro-scrbl-filename (-> string?)]))
   (define (get-bystro-scrbl-filename) (format "~a.scrbl" (get-bystro-scrbl-name)))
   (provide (contract-out
-            [get-bystro-dest-dir (-> string?)]))
+            [get-bystro-dest-dir (-> (or/c string? #f))]))
   (define (get-bystro-dest-dir) (bystro-get-cl-argument "bystro-dest"))
            
 ;; ---------------------------------------------------------------------------------------------------

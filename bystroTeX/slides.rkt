@@ -219,6 +219,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
           stitle 
           (current-slide-number state))))))
 
+
   (provide (contract-out
             ; Subsection in page
             [subpage (->*

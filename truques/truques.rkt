@@ -18,9 +18,9 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 |#
 
 (module truques racket
-  (require scribble/core scribble/base scribble/html-properties scribble/decode scriblib/render-cond racket/string racket/path racket/date racket/port)
-  (require bystroTeX/common)
-  (require xml/path (prefix-in the: xml))
+  (require scribble/core  scribble/base scribble/html-properties scribble/decode  racket/string racket/path racket/date racket/port)
+  (require bystroTeX/common (only-in bystroTeX/slides page subpage))
+  (require (prefix-in the: xml))
   (require "xml.rkt")
   (require "pdq.rkt")
   (define copy-tag-num 0)
@@ -46,12 +46,12 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
   (define (show-and-go a . x)
     (define thisns (namespace-anchor->namespace a))
     (let ((mycode (apply string-append x)))
-        (nested (nested #:style (style "comment" '()) (verb mycode))
-                (eval (read (open-input-string (string-append "(begin " mycode ")"))) thisns))))
+      (nested (nested #:style (style "comment" '()) (verb mycode))
+              (eval (read (open-input-string (string-append "(begin " mycode ")"))) thisns))))
 
   (provide (contract-out [curdir (-> element?)]))
   (define (curdir)
-                                        ;  Inserts the link to the current dir
+    ;  Inserts the link to the current dir
     (hyperlink (bystro-path-to-link ".") 
                #:style (make-style 
                         "sourcelink" 
@@ -275,21 +275,21 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                 #:when (and
                         (filt (build-path dir f))
                         (for/or ([ext (map symbol->string extensions)])
-                         (string-suffix? (path->string f) (string-append "." ext))))
+                          (string-suffix? (path->string f) (string-append "." ext))))
                 )
              (o dir f))]
           )
 
-          (apply
-           nested
-           `(,@(if sd `(,(copy-to-clipboard #:cols 80 (path->string (path->complete-path dir)))) '())
-             ,(if (cons? relevant-files)
-                  (tbl (split-list-in-pairs relevant-files '()))
-                  (make-element
-                   (make-style "bystro-autolist-nothing-found" '())
-                   `("no files with extensions: "
-                     ,(string-join (map symbol->string extensions) "|")))
-                  )))))
+      (apply
+       nested
+       `(,@(if sd `(,(copy-to-clipboard #:cols 80 (path->string (path->complete-path dir)))) '())
+         ,(if (cons? relevant-files)
+              (tbl (split-list-in-pairs relevant-files '()))
+              (make-element
+               (make-style "bystro-autolist-nothing-found" '())
+               `("no files with extensions: "
+                 ,(string-join (map symbol->string extensions) "|")))
+              )))))
   (define (xmlstarlet-desc path)
     (let*-values
         ([(sel-proc   sel-stdout sel-stdin            sel-stderr)
@@ -309,10 +309,10 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
         (close-input-port unesc-stdout)
         results)
       ))
-      
-      
-           
-    
+  
+  
+  
+  
   (provide (contract-out [autolist-svgs (->*
                                          ()
                                          (#:dir path-string?
@@ -413,5 +413,84 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                                            (path->complete-path (build-path d f))))))))
                                    '()
                                    )))))))))
+
+  (provide
+   (contract-out
+    [autopart
+     (->* (content?
+           (or/c block? (listof block?))
+           #:tag string?
+           #:subparts (listof part?)
+           )
+          (#:style (or/c style? #f)
+           #:tag-prefix (or/c #f string? hash?)
+           )
+          pre-part?)]))
+
+  (define (autopart title
+                    top
+                    #:tag tg
+                    #:subparts subs
+                    #:style (stl #f)
+                    #:tag-prefix (tagpref #f)
+                    )
+    `(,(make-part
+        tagpref
+        `(,(make-section-tag tg))
+        `(,title)
+        (stl . or . (make-style #f '()))
+        '()
+        (if (block? top) (list top) top)
+        subs)))
+
+  
+  (provide
+   (contract-out
+    [autopage
+     (->* (content?
+           (or/c block? (listof block?))
+           )
+          (#:showtitle boolean?
+           #:tag (or/c symbol? string? #f)
+           #:subparts (listof pre-part?)
+           )
+          pre-part?)]))
+
+  (define (autopage title
+                    top
+                    #:subparts (subs '())
+                    #:tag (tg #f)
+                    #:showtitle (sttl #t)
+                    )
+    (append
+     (page title #:tag tg #:showtitle sttl)
+     (if (block? top) (list top) top)
+     subs)
+    )
+
+  (provide
+   (contract-out
+    [autosubpage
+     (->*
+      (integer?
+       content?
+       (or/c block? (listof block?))
+       )
+      (#:tag (or/c symbol? string? #f)
+       #:subparts (listof pre-part?)
+       )
+      pre-part?)]))
+  (define (autosubpage level
+                       title
+                       top
+                       #:subparts (subs '())
+                       #:tag (tg #f)
+                       )
+    (append
+     (subpage level title #:tag tg)
+     (if (block? top) (list top) top)
+     subs)
+    )
+
       
   )

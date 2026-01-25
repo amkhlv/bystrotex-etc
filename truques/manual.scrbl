@@ -39,7 +39,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                      "terminal.rkt"
                      "yaml.rkt"
                      ))
-@(require bystroTeX/common "truques.rkt")
+@(require bystroTeX/common  "truques.rkt")
 
 @title{BystroTeX truques}
 
@@ -155,6 +155,83 @@ When @racket[annotated] is @racket[#t], scans SVG files for the
 and filling the @tt{Description} line. This is useful for creating a ``tag cloud''.
 }
 
+@defproc[
+(autopart
+ [title content?]
+ [top (or/c block? (listof block?))]
+ [#:tag tg string?]
+ [#:subparts subs (listof part?)]
+ [#:style stl (or/c style? #f) #f]
+ [#:tag-prefix tagpref (or/c #f string? hash?) #f])
+pre-part?
+]{
+Constructs a @racket[pre-part?] representing a Scribble @racket[part] whose
+title is @racket[title], whose body blocks are given by @racket[top], and whose
+immediate substructure is @racket[subs].
+
+The required @racket[#:tag] argument @racket[tg] is converted to a section tag
+(using @racket[make-section-tag]) and attached to the resulting part; this is
+typically used for cross-references and stable anchors.
+
+The @racket[#:style] argument controls the part style. If @racket[stl] is @racket[#f],
+a default style is used.
+
+The @racket[#:tag-prefix] argument is passed as the part’s tag prefix (the first
+argument of @racket[make-part]). This is useful when generating families of parts
+whose tags should share a prefix or be scoped in a specific way.
+
+The @racket[top] argument may be either a single block or a list of blocks; in the
+former case it is wrapped into a singleton list.
+}
+
+@defproc[
+(autopage
+ [title content?]
+ [top (or/c block? (listof block?))]
+ [#:showtitle sttl boolean? #t]
+ [#:tag tg (or/c symbol? string? #f) #f]
+ [#:subparts subs (listof pre-part?) '()])
+pre-part?
+]{
+Constructs a @racket[pre-part?] page using @racket[page], followed by the body
+blocks @racket[top] and then the additional @racket[pre-part?] values in
+@racket[subs].
+
+The @racket[#:tag] argument is forwarded to @racket[page] and may be a symbol,
+string, or @racket[#f] (meaning “no explicit tag”).
+
+If @racket[#:showtitle] is @racket[#t], the title is rendered by @racket[page];
+if @racket[#f], the title is suppressed (but the structure is still created).
+
+The @racket[top] argument may be either a single block or a list of blocks; in the
+former case it is wrapped into a singleton list.
+}
+
+@defproc[
+(autosubpage
+ [level integer?]
+ [title content?]
+ [top (or/c block? (listof block?))]
+ [#:tag tg (or/c symbol? string? #f) #f]
+ [#:subparts subs (listof pre-part?) '()])
+pre-part?
+]{
+Constructs a @racket[pre-part?] page at an explicit section depth @racket[level]
+(using @racket[(page level title ...)]), followed by the body blocks @racket[top]
+and then the additional @racket[pre-part?] values in @racket[subs].
+
+This function is intended for generating subsections (or deeper levels) under a
+known parent context, by choosing @racket[level] appropriately.
+
+The @racket[#:tag] argument is forwarded to @racket[page] and may be a symbol,
+string, or @racket[#f] (meaning “no explicit tag”).
+
+The @racket[top] argument may be either a single block or a list of blocks; in the
+former case it is wrapped into a singleton list.
+}
+
+
+
 @section{Text}
 
 @defproc[
@@ -218,6 +295,67 @@ and scalars as @racket[copy-to-clipboard] fields for easy reuse.
 
 @section{XML}
 @defmodule[truques/xml]
+
+
+@defproc[
+(xexpr-element? [v any/c])
+boolean?
+]{
+Returns @racket[#t] if @racket[v] is an XML element node represented as an
+@racket[the:xexpr], that is, a nonempty list whose first element is a symbol
+(tag name).
+
+This predicate is intended for use when traversing or filtering XML trees
+represented as x-expressions.
+}
+
+@defproc[
+(xexpr-select
+ [xe the:xexpr?]
+ [pred (-> any/c any/c)])
+(listof the:xexpr?)
+]{
+Traverses the XML tree @racket[xe] and returns all element nodes for which
+@racket[pred] returns a true value.
+
+The predicate is applied only to XML element nodes (not to text nodes or
+attributes). The traversal is performed in document order.
+
+This function provides a generic selection mechanism underlying
+@racket[xexpr-elements] and related helpers.
+}
+
+@defproc[
+(xexpr-elements
+ [tag symbol?]
+ [xe the:xexpr?])
+(listof the:xexpr?)
+]{
+Returns all XML element nodes in @racket[xe] whose tag name is equal to
+@racket[tag].
+
+Traversal is recursive and proceeds in document order. Only element nodes
+whose first component is exactly @racket[tag] are returned.
+
+This function is a convenience wrapper around @racket[xexpr-select].
+}
+
+@defproc[
+(xexpr-elements*
+ [tags (listof symbol?)]
+ [xe the:xexpr?])
+(listof the:xexpr?)
+]{
+Returns all XML element nodes in @racket[xe] whose tag name is a member of
+@racket[tags].
+
+Traversal is recursive and proceeds in document order. Membership is tested
+using @racket[eq?] on tag symbols.
+
+This function is useful when selecting multiple kinds of XML elements in a
+single pass.
+}
+        
 
 @defproc[
 (file->xexpr [a path-string?]) 
@@ -436,6 +574,13 @@ a Scribble block, and YAML output can be post-processed with
 @defmodule[truques/md]
 
 @include-extracted[truques/md]
+
+@section{Directory traversal}
+
+@defmodule[truques/dir-traverse]
+
+@include-extracted[truques/dir-traverse]
+
 
 @section{Legal}
 
