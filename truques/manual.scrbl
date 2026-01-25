@@ -197,14 +197,28 @@ Constructs a @racket[pre-part?] page using @racket[page], followed by the body
 blocks @racket[top] and then the additional @racket[pre-part?] values in
 @racket[subs].
 
-The @racket[#:tag] argument is forwarded to @racket[page] and may be a symbol,
-string, or @racket[#f] (meaning “no explicit tag”).
+Example:
+@(racketblock0
+@(autopage
+  #:tag "sample-autopage"
+  @elem{Sample autopart}
+  `(
+    @,bystro-local-toc[]
+    @,para{First paragraph of content}
+    @,para{Second paragraph}
+    )
+  #:subparts
+  `(
+    @,subpage[1 "First subpage" #:tag "sec:FirstSubpage"]
+    @,para{This is the first paragraph of the first subpage}
+    @,para{This is the second paragraph of the first subpage}
+    @,subpage[1 "Second subpage" #:tag "sec:SecondSubpage"]
+    @,para{This is the first paragraph of the second subpage}
+    @,para{THis is the second paragraph of the second subpage}
+    )
+  )
+  )
 
-If @racket[#:showtitle] is @racket[#t], the title is rendered by @racket[page];
-if @racket[#f], the title is suppressed (but the structure is still created).
-
-The @racket[top] argument may be either a single block or a list of blocks; in the
-former case it is wrapped into a singleton list.
 }
 
 @defproc[
@@ -217,17 +231,8 @@ former case it is wrapped into a singleton list.
 pre-part?
 ]{
 Constructs a @racket[pre-part?] page at an explicit section depth @racket[level]
-(using @racket[(page level title ...)]), followed by the body blocks @racket[top]
+(using @racket[(subpage level title ...)]), followed by the body blocks @racket[top]
 and then the additional @racket[pre-part?] values in @racket[subs].
-
-This function is intended for generating subsections (or deeper levels) under a
-known parent context, by choosing @racket[level] appropriately.
-
-The @racket[#:tag] argument is forwarded to @racket[page] and may be a symbol,
-string, or @racket[#f] (meaning “no explicit tag”).
-
-The @racket[top] argument may be either a single block or a list of blocks; in the
-former case it is wrapped into a singleton list.
 }
 
 
