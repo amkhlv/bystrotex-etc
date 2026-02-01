@@ -19,13 +19,28 @@
  [("-t" "--header") h "header file (.tex)" (set! header-file h)]
  [("-b" "--footer") f "footer file (.tex)" (set! footer-file f)]
  [("-p" "--page") p "page" (set! page p)]
- [("-x" "--extra-rules-require") x.rkt "extra rules file" (set! extra-rules-file x.rkt)]
+ [("-x" "--extra-rules-require") x.rkt "extra rules and substitutions file" (set! extra-rules-file x.rkt)]
  )
 
-(define x-rules (if extra-rules-file (dynamic-require extra-rules-file 'rules) (λ (_) #f)))
+(define default-subs (hash "〚" ""
+                           "〛" ""))
+
+(define x-rules
+  (if extra-rules-file
+      (dynamic-require extra-rules-file 'rules (λ () (λ (_) #f)))
+      (λ (_) #f)))
+(define subs
+  (if extra-rules-file
+      (dynamic-require extra-rules-file 'subs (λ () default-subs))
+      default-subs))
 
 (unless (and input-file output-file header-file footer-file)
   (error "not all arguments are given"))
+
+(define (hash-string-replace s ht)
+  (for/fold ([acc s])
+            ([(k v) (in-hash ht)])
+    (string-replace acc k v)))
 
 (call-with-output-file
   output-file
@@ -54,12 +69,9 @@
           (unless
               (regexp-match? #px"#lang\\s+scribble/base" line)
             (displayln
-             (string-replace
-              (string-replace
-               line
-               "〚" "")
-              "〛" ""
-              )
+             (hash-string-replace
+              line
+              subs)
              out)
             )
           (rec (read-line i))))
