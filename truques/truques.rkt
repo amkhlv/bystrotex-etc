@@ -109,6 +109,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                                     (#:exts (listof symbol?)
                                      #:dir path-string?
                                      #:header (or/c (listof any/c) #f)
+                                     #:order-by (or/c (-> any/c any/c any/c) #f)
                                      #:output (-> path-string? (or/c (listof any/c)))
                                      #:filter (path-for-some-system? . -> . boolean?)
                                      )
@@ -117,6 +118,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            #:exts [extensions '(pdf)]
            #:dir [dir (get-bystro-scrbl-name)]
            #:header [header #f]
+           #:order-by [is-less-than #f]
            #:output [o
                      (lambda (f)
                        `(,(hyperlink
@@ -126,10 +128,9 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                            (path->string f))))]
            #:filter [flt (lambda (p) #t)]
            )
-    (displayln "")
-    (displayln dir)
-    (let ([relevant-files
-           (for/list
+    (displayln (string-append "\nautolisting:" dir))
+    (let* ([relevant-files-unsorted
+            (for/list
                ([f (directory-list dir)]
                 #:when (and
                         (for/or ([ext (map symbol->string extensions)])
@@ -137,11 +138,16 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                         (flt f)
                         )
                 )
-             (o f))])
+              f)]
+           [relevant-files
+            (if is-less-than
+                (sort relevant-files-unsorted is-less-than)
+                relevant-files-unsorted)]
+           )
       (if (cons? relevant-files)
           (bystro-table
            #:style-name "bystro-autolist"
-           (if (cons? header) (cons header relevant-files) relevant-files))
+           (if (cons? header) (cons header (map o relevant-files)) (map o relevant-files)))
           (make-element
            (make-style "bystro-autolist-nothing-found" '())
            `("no files with extensions: "
@@ -169,6 +175,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                                          (#:dir path-string?
                                           #:showtime boolean?
                                           #:filter (path-for-some-system? . -> . boolean?)
+                                          #:order-by (or/c (-> any/c any/c any/c) #f)
                                           #:tags (listof symbol?)
                                           )
                                          (or/c table? element?))]))
@@ -176,12 +183,14 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            #:dir [dir (build-path 'same)]
            #:showtime [st #f]
            #:filter [flt (lambda (p) #t)]
+           #:order-by [is-less-than #f]
            #:tags [tgs '()]
            )
     (autolist
      #:exts '(pdf PDF)
      #:dir dir
      #:header `(,(bold "summary") ,@(if st (list (bold "time")) '()) ,(bold "PDF"))
+     #:order-by is-less-than
      #:filter (λ (p)
                 (and
                  (flt p)
@@ -228,6 +237,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                                             #:scale number?
                                             #:ncols integer?
                                             #:filter (path-for-some-system? . -> . boolean?)
+                                            #:order-by (or/c (-> any/c any/c any/c) #f)
                                             #:showtime boolean?
                                             #:showdir boolean?
                                             #:output (path-string?  path? . -> . block?)
@@ -239,6 +249,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            #:scale [scale 0.25]
            #:ncols [ncols 2]
            #:filter [filt (λ (f) #t)]
+           #:order-by [is-less-than #f]
            #:showtime [st #f]
            #:showdir [sd #t]
            #:output [o
@@ -269,22 +280,25 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
        (split-list-in-pairs rst (cons (cons el row) aa))]
       [((cons el rst) '())
        (split-list-in-pairs rst (list (list el)))])
-    (let ([relevant-files
-           (for/list
+    (let* ([relevant-files-unsorted
+            (for/list
                ([f (directory-list dir)]
                 #:when (and
                         (filt (build-path dir f))
                         (for/or ([ext (map symbol->string extensions)])
                           (string-suffix? (path->string f) (string-append "." ext))))
                 )
-             (o dir f))]
-          )
-
+              (dir f))]
+           [relevant-files
+            (if is-less-than
+                (sort relevant-files-unsorted is-less-than)
+                relevant-files-unsorted)]
+           )
       (apply
        nested
        `(,@(if sd `(,(copy-to-clipboard #:cols 80 (path->string (path->complete-path dir)))) '())
          ,(if (cons? relevant-files)
-              (tbl (split-list-in-pairs relevant-files '()))
+              (tbl (split-list-in-pairs (map o relevant-files) '()))
               (make-element
                (make-style "bystro-autolist-nothing-found" '())
                `("no files with extensions: "
@@ -319,6 +333,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                                           #:scale number?
                                           #:ncols integer?
                                           #:filter (-> path-for-some-system? boolean?)
+                                          #:order-by (or/c (-> any/c any/c any/c) #f)
                                           #:showtime boolean?
                                           #:showdir boolean?
                                           #:annotated boolean?
@@ -330,6 +345,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
      #:scale [scale 0.25]
      #:ncols [ncols 2]
      #:filter [filt (λ (f) #t)]
+     #:order-by [is-less-than #f]
      #:showtime [st #f]
      #:showdir [sd #t]
      #:annotated [annot #f]
@@ -371,6 +387,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            #:dir dir
            #:ncols ncols
            #:filter filt
+           #:order-by is-less-than
            #:showtime st
            #:showdir sd
            #:scale scale
