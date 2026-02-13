@@ -212,24 +212,22 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                              (lambda (inport) (the:xml->xexpr (the:document-element (the:read-xml inport)))))
                            '(root () (summary () "--")))]
                        [summary (se-path* '(summary) x)])
-                  `(
-                    ,(if
-                      summary
-                      (show-xexpr
-                       #:transform-to-content
-                       (hash-set (transform-to-content)
-                                 'tag
-                                 (λ (y)
-                                   (make-element
-                                    (make-style "bystro-pdq-tag" '())
-                                    (caddr y))))
-                       (cons
-                        'rt
-                        (append (se-path*/list '(summary) x) (se-path*/list '(tags) x)))
-                       )
-                      "")
+                  `(,(show-xexpr
+                      #:transform-to-content
+                      (hash-set (transform-to-content)
+                                'tag
+                                (λ (y)
+                                  (make-element
+                                   (make-style "bystro-pdq-tag" '())
+                                   (caddr y))))
+                      (cons
+                       'rt
+                       (append (se-path*/list '(summary) x) (se-path*/list '(tags) x)))
+                      )
                     ,@(if t (list (smaller (date->string (seconds->date t)))) '())
-                    ,(hyperlink frel .pdf))))))
+                    ,(hyperlink frel .pdf)
+                    )
+                  ))))
   (provide (contract-out [autolist-images (->*
                                            ()
                                            (#:exts (listof symbol?)
