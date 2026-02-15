@@ -286,7 +286,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                         (for/or ([ext (map symbol->string extensions)])
                           (string-suffix? (path->string f) (string-append "." ext))))
                 )
-              (dir f))]
+              (cons dir f))]
            [relevant-files
             (if is-less-than
                 (sort relevant-files-unsorted is-less-than)
@@ -296,7 +296,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
        nested
        `(,@(if sd `(,(copy-to-clipboard #:cols 80 (path->string (path->complete-path dir)))) '())
          ,(if (cons? relevant-files)
-              (tbl (split-list-in-pairs (map o relevant-files) '()))
+              (tbl (split-list-in-pairs (map (λ (x) (o (car x) (cdr x))) relevant-files) '()))
               (make-element
                (make-style "bystro-autolist-nothing-found" '())
                `("no files with extensions: "
