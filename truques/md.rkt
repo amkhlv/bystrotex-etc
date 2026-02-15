@@ -51,8 +51,7 @@
     (decode-part
      (parameterize ([current-input-port
                      (open-input-string (apply string-append lines))])
-       (lambda ()
-         (xexprs->scribble-pres (read-markdown))))
+         (xexprs->scribble-pres (read-markdown)))
      (if tag (list tag) '())
      (list title)
      level))
