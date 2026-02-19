@@ -156,13 +156,23 @@
          (displn "}\\end{figure}")
          )
        ]
-      [`(tbl #:orient ,_ `(quasiquote ,rows))
+      [`(tbl #:orient ,_ (quasiquote ,rows))
        (begin
          (disp "\n\\begin{tabular}{")
          (for ([_ (car rows)]) (disp " | c "))
          (displn "| }")
-         (map main0 rows)
-         (displn "\n\\end{tabular}"))]
+         (define (mkrow xs)
+           (main0 (car xs))
+           (when (cons? (cdr xs))
+             (displn "&")
+             (mkrow (cdr xs))))
+         (define (mkrows xs)
+           (mkrow (car xs))
+           (when (cons? (cdr xs))
+             (displn "\\cr")
+             (mkrows (cdr xs))))
+         (mkrows rows)
+         (displn "\\end{tabular}"))]
       [`(align l.n ,@xs)
        (main0
         `(align
