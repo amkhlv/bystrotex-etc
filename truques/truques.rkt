@@ -245,7 +245,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
            #:exts [extensions '(svg png tiff jpg jpeg)]
            #:dir [dir (build-path 'same)]
            #:scale [scale 0.25]
-           #:ncols [ncols 2]
+           #:ncols [ncols 1]
            #:filter [filt (λ (f) #t)]
            #:order-by [is-less-than #f]
            #:showtime [st #f]
@@ -341,7 +341,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
     (autolist-svgs
      #:dir [dir (build-path 'same)]
      #:scale [scale 0.25]
-     #:ncols [ncols 2]
+     #:ncols [ncols 1]
      #:filter [filt (λ (f) #t)]
      #:order-by [is-less-than #f]
      #:showtime [st #f]
