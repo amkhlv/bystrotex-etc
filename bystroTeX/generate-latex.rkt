@@ -64,6 +64,7 @@
       [`(high ,@_) (void)]
       [`(bystro-reset-colors ,@_) (void)]
       [`(bystro-scrbl-only ,@_) (void)]
+      [`(bystro-latex-only ,@xs) (map main0 xs)]
       [`(apply ,f (quasiquote ,xs)) (main0 `(,f ,@xs))]
       [(list 'unquote x) (main0 x)]
       [`(use-LaTeX-preamble ,@xs)
@@ -74,6 +75,11 @@
       [`(void "BystroTeX-start-appendix") (displn "\\appendix")]
       [`(indent ,@xs) (map main0 xs)]
       [`(indent---> ,@xs) (map main0 xs)]
+      [`(centered ,@xs)
+       (begin
+         (displn "\\begin{center}")
+         (map main0 xs)
+         (displn "\\end{center}"))]
       [`(cite ,x) (printf "\\cite{~a}" x)]
       [`(seclink ,@xs) (printf "Section \\ref{~a}" (car xs))]
       [`(verb ,x) (printf "\\verbatim{~a}" x)]
@@ -167,9 +173,10 @@
              (displn "&")
              (mkrow (cdr xs))))
          (define (mkrows xs)
-           (mkrow (car xs))
-           (when (cons? (cdr xs))
-             (displn "\\cr")
+           (displn "\\hline")
+           (when (cons? xs)
+             (mkrow (car xs))
+             (displn "\\\\")
              (mkrows (cdr xs))))
          (mkrows rows)
          (displn "\\end{tabular}"))]
