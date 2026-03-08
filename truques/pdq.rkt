@@ -34,7 +34,10 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
              [result (listof string?)])
   ()))
 (define (pdq-tags p)
-  (let ([x (file->xexpr p)])
-    (se-path*/list '(tag) x)))
+  (let ([pdq (path-replace-extension p #".pdq")])
+    (if (file-exists? pdq)
+        (se-path*/list '(tag) (file->xexpr pdq))
+        '())))
+
 
 

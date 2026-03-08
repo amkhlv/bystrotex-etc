@@ -36,28 +36,32 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 (define (show-json jsn #:font-size-step [step "80%"] #:top? [top? #t])
   (cond
     [(hash? jsn)
-     (tabular
-      #:style
-      (style
-       #f
-       `(,(attributes `((style
-                         .
-                         ,(format
-                           "font-size: ~a; border: 1px solid black; border-spacing: 1ex;"
-                           (if top? "100%" step)
-                           ))))
-         ,(table-columns
-           `(,(style
-               #f
-               `(border top right ,(attributes `((style . "padding: 1ex;")))))
-             ,(style
-               #f
-               `(border ,(attributes `((style . "padding: 1ex;")))))))))
-      (for/list ([k (hash-keys jsn)])
-        `(,(symbol->string k)
-          ,(show-json (hash-ref jsn k) #:font-size-step step #:top? #f))
-        )
-      )
+     (let ([children
+            (for/list ([k (hash-keys jsn)])
+              (map
+               (λ (x) (if (void? x) "---" x))
+               `(,(symbol->string k)
+                 ,(show-json (hash-ref jsn k) #:font-size-step step #:top? #f))
+               ))])
+       (tabular
+        #:style
+        (style
+         #f
+         `(,(attributes `((style
+                           .
+                           ,(format
+                             "font-size: ~a; border: 1px solid black; border-spacing: 1ex;"
+                             (if top? "100%" step)
+                             ))))
+           ,(table-columns
+             `(,(style
+                 #f
+                 `(border top right ,(attributes `((style . "padding: 1ex;")))))
+               ,(style
+                 #f
+                 `(border ,(attributes `((style . "padding: 1ex;")))))))))
+        children
+        ))
      ]
     [(string? jsn) (paragraph (style 'json-string '()) jsn)]
     [(number? jsn) (show-json (number->string jsn))]
@@ -148,10 +152,10 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                     )
                   ]
                  ['ncl "nickel"]
-                 ['nu "xargs"]
+                 ['nu "nu"]
                  )
                )
-             ,@(if (eq? input-type 'nu) '("nu" "--commands") '())
+             ,@(if (eq? input-type 'nu) `("--commands" ,(apply string-append (intersperse " ; " code))) '())
              ,@(if (eq? input-type 'ncl)
                    `("export"
                      "--format"
@@ -170,7 +174,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                            (displayln code)
                            (for ([line code])
                              (displayln line)
-                             (displayln line in)
+                             (unless (eq? input-type 'nu)(displayln line in))
                              )))
       (close-output-port in)
       (display (port->string err) (current-error-port))
