@@ -128,7 +128,6 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                            (path->string f))))]
            #:filter [flt (lambda (p) #t)]
            )
-    (displayln (string-append "\nautolisting:" dir))
     (let* ([relevant-files-unsorted
             (for/list
                ([f (directory-list dir)]
