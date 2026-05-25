@@ -1,38 +1,25 @@
 /* ============================================================
-   BystroTeX Letter Profile — slide.css
+   BystroTeX Paper Profile — slide-title.css
    ============================================================
-   Loaded for every page (and in singlepage mode).
+   Loaded for the TITLE PAGE only in multipage mode.
+   In singlepage mode only slide.css is used.
 
-   ON SCREEN: simulates a physical A4 paper sheet on a gray
-   background, so what you see in the browser is very close
-   to what Chrome will put in the PDF.
-
-   ON PRINT (Chrome → Print to PDF):
-   - Use "A4" paper size in Chrome's print dialog
-   - Set margins to "None" (the @page rule below controls them)
-   - Enable "Background graphics" only if you use background colors
-   The resulting PDF should look comparable to LaTeX output.
-
-   FONT: EB Garamond is loaded from Google Fonts — a beautiful
-   open-source revival of Garamond, common in academic publishing.
-   If you are offline, it falls back to Georgia, then Times New Roman.
-   To use a different font, change the @import URL and the
-   font-family stacks below.
+   Must be fully self-contained (each HTML file in multipage
+   mode is independent).
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,opsz,wght@0,12..72,400;0,12..72,600;1,12..72,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,opsz,wght@0,12..72,400;0,12..72,600;0,12..72,700;1,12..72,400;1,12..72,600&display=swap');
 
 /* ============================================================
-   SCREEN: paper simulation
+   SCREEN
    ============================================================ */
 
 body {
-  background-color: #606060;   /* gray surround, like Acrobat Reader */
+  background-color: #606060;
   margin: 0;
   padding: 0;
 }
 
-/* Override Scribble's default font assignments */
 .maincolumn,
 .refpara, .refelem, .tocset,
 .stt, .hspace, .refparaleft, .refelemleft,
@@ -40,64 +27,55 @@ body {
   font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
 }
 
-/* Hide all navigation chrome on screen */
 .tocset         { display: none !important; }
 .navsettop      { display: none !important; }
 .navsetbottom   { display: none !important; }
 #contextindicator { display: none !important; }
 
-/* The paper sheet — centered, A4-sized, with inner margins
-   that mirror the @page margins below so the screen view
-   matches the printed output exactly.                       */
 .maincolumn {
-  /* Cancel Scribble's sidebar float layout */
   float: none !important;
   width: 21cm !important;
   margin: 1.5cm auto !important;
 
-  /* Paper appearance */
   background-color: #ffffff;
-  padding: 2.5cm 3cm;          /* top/bottom 2.5cm, left/right 3cm */
+  padding: 2.5cm;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
 
-  /* Typography */
   font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
-  font-size: 12pt;
-  line-height: 1.55;
+  font-size: 11pt;
+  line-height: 1.4;
   color: #000000;
 }
 
 .main {
   font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
-  font-size: 12pt;
-  line-height: 1.55;
+  font-size: 11pt;
+  line-height: 1.4;
   text-align: justify;
-  /* Cancel any Scribble width constraints */
   width: auto !important;
   max-width: none !important;
 }
 
-/* Paragraph spacing */
 p, .SIntrapara {
-  margin-top: 0.85em;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-indent: 1.5em;
+}
+
+h1 + p, h2 + p, h3 + p, h4 + p, h5 + p, h6 + p,
+.pagetitle + p,
+.SCodeFlow + p, .SVInsetFlow + p,
+table + p, figure + p, blockquote + p,
+pre + p, ul + p, ol + p {
+  text-indent: 0;
+}
+
+table p {
+  text-indent: 0;
+  margin-top: 0;
   margin-bottom: 0;
 }
-
-/* Links: subtle blue on screen, invisible in print (see below) */
-a {
-  color: #1a1a7e;
-}
-
-/* Monospace / code stays monospace */
-.stt, pre, code, kbd {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.9em;
-}
-
-/* ----------------------------------------------------------
-   Headings
-   ---------------------------------------------------------- */
 
 h2 {
   font-family: 'EB Garamond', Georgia, serif;
@@ -109,7 +87,6 @@ h2 {
   line-height: 1.25;
 }
 
-/* Section — @page["Title"] → <span class="pagetitle"> */
 .pagetitle {
   display: block;
   font-family: 'EB Garamond', Georgia, serif;
@@ -123,7 +100,6 @@ h2 {
   line-height: 1.3;
 }
 
-/* Subsection — @subpage[1 "Title"] → <span class="pagetitle-1"> */
 .pagetitle-1 {
   display: block;
   font-family: 'EB Garamond', Georgia, serif;
@@ -137,7 +113,6 @@ h2 {
   line-height: 1.3;
 }
 
-/* Subsubsection — @subpage[2 "Title"] → <span class="pagetitle-2"> */
 .pagetitle-2 {
   display: block;
   font-family: 'EB Garamond', Georgia, serif;
@@ -151,7 +126,6 @@ h2 {
   line-height: 1.3;
 }
 
-/* Paragraph heading — @subpage[3 "Title"] → <span class="pagetitle-3"> */
 .pagetitle-3 {
   display: block;
   font-family: 'EB Garamond', Georgia, serif;
@@ -194,31 +168,66 @@ h5 {
   margin-bottom: 0.3em;
 }
 
+.bystro-equation, .SVInsetFlow {
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+ul, ol {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+  padding-left: 2em;
+}
+
+ul { list-style-type: disc; }
+ol { list-style-type: decimal; }
+
+li {
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+.stt, pre, code, kbd {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.88em;
+}
+
+a {
+  color: #1a1a7e;
+}
+
+/* Navigation bars — invisible but present */
+.navsettop {
+  background-color: #ffffff;
+  margin: 0;
+  border: none;
+  height: 0;
+}
+
+.navsetbottom {
+  background-color: #ffffff;
+  margin: 0;
+  border: none;
+  height: 0;
+}
+
 /* ============================================================
    PRINT / @page
-   ============================================================
-   @page controls the actual paper margins Chrome applies when
-   printing to PDF. Set "Margins: None" in Chrome's print dialog
-   so these values are the only ones in effect.
-
-   The padding values in .maincolumn above should match these
-   margins so the screen simulation is accurate.               */
+   ============================================================ */
 
 @page {
   size: A4;
-  margin: 2.5cm 3cm;   /* top/bottom 2.5cm, left/right 3cm */
+  margin: 2.5cm;
 }
 
 @media print {
 
-  /* White page background — no gray surround needed */
   body {
     background: white !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  /* Strip ALL navigation chrome */
   .tocset         { display: none !important; }
   .navsettop      { display: none !important; }
   .navsetbottom   { display: none !important; }
@@ -226,9 +235,6 @@ h5 {
   .navright       { display: none !important; }
   #contextindicator { display: none !important; }
 
-  /* The @page margin IS the letter margin.
-     Strip the screen simulation so content fills
-     the full printable area.                      */
   .maincolumn {
     float: none !important;
     width: 100% !important;
@@ -244,25 +250,20 @@ h5 {
     max-width: none !important;
   }
 
-  /* Black links, no underline — cleaner in PDF */
   a {
     color: black !important;
     text-decoration: none !important;
   }
 
-  /* Pagination quality */
   p, .SIntrapara {
     orphans: 3;
     widows: 3;
   }
 
-  /* Keep headings attached to following content */
-  h1, h2, h3, h4, h5, h6,
-  .pagetitle, .pagetitle-1, .pagetitle-2, .pagetitle-3 {
+  h2, h3, h4, h5, h6 {
     page-break-after: avoid;
   }
 
-  /* Do not break inside these */
   figure, table, pre, blockquote {
     page-break-inside: avoid;
   }

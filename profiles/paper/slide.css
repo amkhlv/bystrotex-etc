@@ -1,0 +1,348 @@
+/* ============================================================
+   BystroTeX Paper Profile — slide.css
+   ============================================================
+   Loaded for every page (and in singlepage mode).
+
+   Designed to produce PDF output comparable to a LaTeX article:
+   - EB Garamond 11pt (close to Computer Modern in character)
+   - Symmetric 2.5 cm margins (matching \usepackage[margin=2.5cm]{geometry})
+   - First-line paragraph indentation, no inter-paragraph spacing
+   - Centred bold title, styled section / subsection headings
+   - Display equations with breathing room above and below
+
+   ON SCREEN: simulates an A4 paper sheet on a gray background.
+   ON PRINT (Chrome → Print to PDF):
+     - Paper size: A4
+     - Margins in Chrome dialog: None  ← important!
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,opsz,wght@0,12..72,400;0,12..72,600;0,12..72,700;1,12..72,400;1,12..72,600&display=swap');
+
+/* ============================================================
+   SCREEN: paper simulation
+   ============================================================ */
+
+body {
+  background-color: #606060;
+  margin: 0;
+  padding: 0;
+}
+
+/* Override Scribble's default font assignments */
+.maincolumn,
+.refpara, .refelem, .tocset,
+.stt, .hspace, .refparaleft, .refelemleft,
+.main, .refcontent, .tocview, .tocsub, .sroman {
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+}
+
+/* Hide navigation chrome */
+.tocset         { display: none !important; }
+.navsettop      { display: none !important; }
+.navsetbottom   { display: none !important; }
+#contextindicator { display: none !important; }
+
+/* A4 paper sheet — symmetric 2.5 cm padding mirrors @page margins */
+.maincolumn {
+  float: none !important;
+  width: 21cm !important;
+  margin: 1.5cm auto !important;
+
+  background-color: #ffffff;
+  padding: 2.5cm;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-size: 11pt;
+  line-height: 1.4;
+  color: #000000;
+}
+
+.main {
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-size: 11pt;
+  line-height: 1.4;
+  text-align: justify;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* ----------------------------------------------------------
+   Paragraph style: LaTeX article default.
+   - No spacing between paragraphs.
+   - First line indented, EXCEPT after headings and
+     other block-level elements.
+   ---------------------------------------------------------- */
+
+p, .SIntrapara {
+  margin-top: 0;
+  margin-bottom: 0;
+  text-indent: 1.5em;
+}
+
+/* No indent for the first paragraph after a heading or block element */
+h1 + p, h2 + p, h3 + p, h4 + p, h5 + p, h6 + p,
+.pagetitle + p, .pagetitle-1 + p, .pagetitle-2 + p, .pagetitle-3 + p,
+.SCodeFlow + p,
+.SVInsetFlow + p,
+table + p,
+figure + p,
+blockquote + p,
+pre + p,
+ul + p,
+ol + p {
+  text-indent: 0;
+}
+
+/* No indent inside tables (table cells have their own context) */
+table p {
+  text-indent: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ----------------------------------------------------------
+   Headings
+   ---------------------------------------------------------- */
+
+/* Document title — from @title{} — large, centred, bold.
+   h2 is what Scribble renders for the top-level @title.    */
+h2 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 17pt;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0.15em;
+  line-height: 1.25;
+}
+
+/* Section heading — from @page["Title"] — like \section{}.
+   BystroTeX emits <span class="pagetitle"> inside a <p>.
+   display:block promotes it to a block so text-align works
+   and text-indent (inherited from p) is suppressed.        */
+.pagetitle {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15pt;
+  font-weight: bold;
+  font-style: normal;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+/* Subsection — from @subpage[1 "Title"] — like \subsection{} */
+.pagetitle-1 {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 13pt;
+  font-weight: bold;
+  font-style: normal;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 1.5em;
+  margin-bottom: 0.35em;
+  line-height: 1.3;
+}
+
+/* Subsubsection — from @subpage[2 "Title"] — like \subsubsection{} */
+.pagetitle-2 {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 1.3em;
+  margin-bottom: 0.3em;
+  line-height: 1.3;
+}
+
+/* Paragraph-level heading — from @subpage[3 "Title"] */
+.pagetitle-3 {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 11pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 1.1em;
+  margin-bottom: 0.25em;
+  line-height: 1.3;
+}
+
+/* Scribble may also render h3/h4/h5 from part-start — keep them
+   consistent with the pagetitle-N levels above.               */
+h3 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15pt;
+  font-weight: bold;
+  font-style: normal;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  text-align: left;
+}
+
+h4 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 13pt;
+  font-weight: bold;
+  font-style: normal;
+  margin-top: 1.5em;
+  margin-bottom: 0.35em;
+  text-align: left;
+}
+
+h5 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: italic;
+  margin-top: 1.3em;
+  margin-bottom: 0.3em;
+}
+
+/* ----------------------------------------------------------
+   Display equations — give them breathing room
+   ---------------------------------------------------------- */
+
+/* BystroTeX wraps display equations in .bystro-equation or
+   in an alignment table. Both need vertical space.          */
+.bystro-equation,
+.SVInsetFlow {
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+/* ----------------------------------------------------------
+   Lists — restore indentation removed by some resets
+   ---------------------------------------------------------- */
+
+ul, ol {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+  padding-left: 2em;
+}
+
+ul { list-style-type: disc; }
+ol { list-style-type: decimal; }
+
+li {
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+/* ----------------------------------------------------------
+   Blockquote / abstract
+   Use @nested[#:style (bystro-elemstyle "...")] or @leftbar
+   for abstract-like environments.
+   ---------------------------------------------------------- */
+
+blockquote {
+  margin: 1em 3em;
+  font-size: 10pt;
+}
+
+/* ----------------------------------------------------------
+   Code / monospace
+   ---------------------------------------------------------- */
+
+.stt, pre, code, kbd {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.88em;
+}
+
+pre {
+  margin: 0.6em 2em;
+  white-space: pre-wrap;
+}
+
+/* ----------------------------------------------------------
+   Links
+   ---------------------------------------------------------- */
+
+a {
+  color: #1a1a7e;
+}
+
+/* ----------------------------------------------------------
+   Misc
+   ---------------------------------------------------------- */
+
+/* Horizontal rule as section separator */
+hr {
+  border: none;
+  border-top: 1px solid #aaa;
+  margin: 1.5em 0;
+}
+
+/* ============================================================
+   PRINT / @page
+   ============================================================
+   Matches the 2.5 cm padding used in .maincolumn above.
+   Set "Margins: None" in Chrome's print dialog.             */
+
+@page {
+  size: A4;
+  margin: 2.5cm;
+}
+
+@media print {
+
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Strip all navigation chrome */
+  .tocset         { display: none !important; }
+  .navsettop      { display: none !important; }
+  .navsetbottom   { display: none !important; }
+  .navleft        { display: none !important; }
+  .navright       { display: none !important; }
+  #contextindicator { display: none !important; }
+
+  /* Strip the screen paper simulation */
+  .maincolumn {
+    float: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: white !important;
+    box-sizing: border-box !important;
+  }
+
+  .main {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* Black links, no underline */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+
+  /* Pagination quality */
+  p, .SIntrapara {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2, h3, h4, h5, h6,
+  .pagetitle, .pagetitle-1, .pagetitle-2, .pagetitle-3 {
+    page-break-after: avoid;
+  }
+
+  figure, table, pre, blockquote {
+    page-break-inside: avoid;
+  }
+}

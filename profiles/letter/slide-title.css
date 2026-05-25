@@ -76,6 +76,101 @@ a {
   font-size: 0.9em;
 }
 
+/* ----------------------------------------------------------
+   Headings
+   ---------------------------------------------------------- */
+
+h2 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 17pt;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0.15em;
+  line-height: 1.25;
+}
+
+.pagetitle {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15pt;
+  font-weight: bold;
+  font-style: normal;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.pagetitle-1 {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 13pt;
+  font-weight: bold;
+  font-style: normal;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 1.5em;
+  margin-bottom: 0.35em;
+  line-height: 1.3;
+}
+
+.pagetitle-2 {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 1.3em;
+  margin-bottom: 0.3em;
+  line-height: 1.3;
+}
+
+.pagetitle-3 {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 11pt;
+  font-weight: bold;
+  font-style: italic;
+  text-align: left;
+  text-indent: 0;
+  margin-top: 1.1em;
+  margin-bottom: 0.25em;
+  line-height: 1.3;
+}
+
+h3 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15pt;
+  font-weight: bold;
+  font-style: normal;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  text-align: left;
+}
+
+h4 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 13pt;
+  font-weight: bold;
+  font-style: normal;
+  margin-top: 1.5em;
+  margin-bottom: 0.35em;
+  text-align: left;
+}
+
+h5 {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 12pt;
+  font-weight: bold;
+  font-style: italic;
+  margin-top: 1.3em;
+  margin-bottom: 0.3em;
+}
+
 /* Upper and lower navigation bars — invisible but present */
 .navsettop {
   background-color: #ffffff;
@@ -141,7 +236,8 @@ a {
     widows: 3;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3, h4, h5, h6,
+  .pagetitle, .pagetitle-1, .pagetitle-2, .pagetitle-3 {
     page-break-after: avoid;
   }
 
