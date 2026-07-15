@@ -32,31 +32,33 @@ async function runServer() {
   console.log(`Bound to ${path.join(sock_dir, "bystrotex.ipc")}`)
 
   for await (const [msg] of sock) {
+    try {
+      const obj = JSON.parse(msg);
+      if (!('texstring' in obj)) {
+        throw new Error("request is missing 'texstring'");
+      }
 
-    const obj = JSON.parse(msg);
-    if ('texstring' in obj) {
       const node = html.convert(obj.texstring, {
           display: !INLINE,
       });
       const align = node.children[0].attributes.style;
       const width = node.children[0].attributes.width;
       const height = node.children[0].attributes.height;
-      const dims = { valign : align, width : width, height: height };
-      let svgString = adaptor.innerHTML(node);
+      const svgString = adaptor.innerHTML(node);
       //svgString = svgString.replace(/<defs>/, `<defs><style>${CSS}</style>`)
 
-      fs.writeFile(obj.outpath, svgString, err => {
-        if (err) {
-          console.error(err);
-        } else {
-          // file written successfully
-        }
-      });
-      await sock.send(JSON.stringify(dims));
+      await sock.send(JSON.stringify({
+        svg: svgString,
+        valign: align,
+        width,
+        height,
+      }));
+    } catch (error) {
+      console.error(error);
+      await sock.send(JSON.stringify({ error: error.message }));
     }
   }
 }
 
 runServer();
  
-

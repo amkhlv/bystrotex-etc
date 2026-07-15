@@ -301,19 +301,20 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
      ))
   ;; ---------------------------------------------------------------------------------------------------
   (define (get-svg-from-zeromq texstring filepath)
-    (let* ([path
-            (build-path (current-directory) filepath)]
-           [j
-             (make-hash
-              `((texstring . ,texstring) (outpath . ,(path->string path))))])
+    (let ([j (make-hash `((texstring . ,texstring)))])
       (display j)
       (socket-send! zeromq-socket (jsexpr->bytes j))
       (define reply (socket-recv! zeromq-socket))
-      ;(displayln "\n --- REPLY was: ")
-      ;(displayln reply)
-      (bytes->jsexpr reply)
-      )
-    )
+      (define reply-json (bytes->jsexpr reply))
+      (when (hash-has-key? reply-json 'error)
+        (error 'get-svg-from-zeromq
+               "backend failed to render formula: ~a"
+               (hash-ref reply-json 'error)))
+      (call-with-output-file filepath
+        #:exists 'replace
+        (lambda (out)
+          (display (hash-ref reply-json 'svg) out)))
+      reply-json))
   ;; ---------------------------------------------------------------------------------------------------
   (define (bystro-command-to-typeset-formula shell-command-path texstring size bg-color fg-color filename)
                                         ; The procedure returns an integer representing the vertical offset.
@@ -455,7 +456,6 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
                    [dims-json (get-svg-from-zeromq 
                                (apply string-append (cons preamble tex))
                                filename)])
-                (displayln dims-json)
                 (query
                  mydb
                  (bind-prepared-statement
