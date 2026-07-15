@@ -212,7 +212,7 @@
                        [(list f1 f2 `(label ,lbl))
                         (begin (displn "") (m f1) (disp " & ") (m f2) (printf "\\label{~a}" lbl))]
                        [(list f1 f2 "")
-                        (begin (displn "") (m f1) (disp " & ") (m f2))]
+                        (begin (displn "") (m f1) (disp " & ") (m f2) (disp "\\nonumber "))]
                        ))])
          (disp "\\begin{align}")
          (f (car xs))
