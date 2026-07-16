@@ -7,12 +7,21 @@
   
   (provide cite)
   (provide bibliography)
+
+  (define bystrotex-socket-dir
+    (let ([configured-dir (getenv "BYSTROTEX_SOCKET_DIR")])
+      (if configured-dir
+          (string->path configured-dir)
+          (build-path (find-system-path 'home-dir)
+                      ".local" "run" "bystrotex"))))
   
   (define (get-zeromq-socket-rust)
     (let* ([ctxt (context 1)]
            [sock (socket ctxt 'REQ)]
            [sock-path
-            (format "ipc://~a/.local/run/bystrotex/rust-extras.ipc" (path->string (find-system-path 'home-dir)))
+            (format "ipc://~a"
+                    (path->string
+                     (build-path bystrotex-socket-dir "rust-extras.ipc")))
             ]
            )
       (display (format " -- connecting to ~a ~n" sock-path))

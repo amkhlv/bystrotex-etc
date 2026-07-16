@@ -89,23 +89,45 @@ After installing @hyperlink["https://racket-lang.org/"]{Racket} and
 
 @subpage[1 "Running" #:tag "sec:Running"]
 
-Make your BibTeX file available at @tt{~/.config/bystrotex.bib}, then build the
-combined Node and Rust backend container from the root of the repository:
+Make your BibTeX file available at @tt{~/.config/bystrotex.bib}, then run both
+backend services as your ordinary user. Podman downloads the image from Docker
+Hub automatically if it is not already available locally:
+
+@verb|{
+       mkdir -p "$HOME/.local/run/bystrotex"
+       rm -f "$HOME/.local/run/bystrotex/bystrotex.ipc" \
+             "$HOME/.local/run/bystrotex/rust-extras.ipc"
+
+       podman run --rm \
+         --name bystrotex-backend \
+         --userns=keep-id \
+         --user "$(id -u):$(id -g)" \
+         --mount "type=bind,src=$HOME/.local/run/bystrotex,target=/run/bystrotex" \
+         --mount "type=bind,src=$HOME/.config/bystrotex.bib,target=/config/bystrotex.bib,ro=true" \
+         docker.io/andreimikhailov/bystrotex-backend:latest
+       }|
+
+The Racket clients and container communicate through @tt{bystrotex.ipc} and
+@tt{rust-extras.ipc} in @tt{~/.local/run/bystrotex}. The command shares that
+directory and mounts the bibliography read-only. If the bibliography is stored
+elsewhere, replace @tt{$HOME/.config/bystrotex.bib} with its absolute path.
+
+On a system with SELinux enabled, the socket-directory mount may need
+@tt{relabel=shared}:
+
+@verb|{
+       --mount "type=bind,src=$HOME/.local/run/bystrotex,target=/run/bystrotex,relabel=shared"
+       }|
+
+Alternatively, build the image locally from the root of this repository:
 
 @verb|{
        podman build -t localhost/bystrotex-backend:latest .
        }|
 
-Then run both services as your ordinary user:
-
-@verb|{
-       shell-scripts/run-backend-container.sh
-       }|
-
-The Racket clients and container communicate through @tt{bystrotex.ipc} and
-@tt{rust-extras.ipc} in @tt{~/.local/run/bystrotex}. The launcher shares only
-that directory and mounts the bibliography read-only. Set
-@tt{BYSTROTEX_BIB_PATH} if it is stored elsewhere.
+Then use @tt{localhost/bystrotex-backend:latest} instead of the Docker Hub
+image in the @tt{podman run} command above. Rebuild the local image after
+changing the backend or its dependencies.
 
 Then, in a separate terminal:
 

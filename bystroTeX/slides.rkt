@@ -106,13 +106,20 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
 
   ;; ---------------- end of compatibility block --------------------------------
 
-  
+  (define bystrotex-socket-dir
+    (let ([configured-dir (getenv "BYSTROTEX_SOCKET_DIR")])
+      (if configured-dir
+          (string->path configured-dir)
+          (build-path (find-system-path 'home-dir)
+                      ".local" "run" "bystrotex"))))
 
   (define (get-zeromq-socket)
     (let* ([ctxt (context 1)]
            [sock (socket ctxt 'REQ)]
            [sock-path
-            (format "ipc://~a/.local/run/bystrotex/bystrotex.ipc" (path->string (find-system-path 'home-dir)))]
+            (format "ipc://~a"
+                    (path->string
+                     (build-path bystrotex-socket-dir "bystrotex.ipc")))]
            )
       (display (format " -- connecting to ~a ~n" sock-path))
       (socket-connect! sock sock-path)

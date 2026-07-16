@@ -20,20 +20,45 @@ Make sure that `~/.local/bin` is in `PATH`
 ## building example pages
 
 First ensure that your bibliography is available at
-`~/.config/bystrotex.bib`. Then build the combined Node and Rust backend
-container (this only needs to be repeated after changing the backend or its
-dependencies):
+`~/.config/bystrotex.bib`. Then run both backend services as your ordinary
+user. Podman downloads the image from Docker Hub automatically if it is not
+already available locally:
 
-    podman build -t localhost/bystrotex-backend:latest .
+```sh
+mkdir -p "$HOME/.local/run/bystrotex"
+rm -f "$HOME/.local/run/bystrotex/bystrotex.ipc" \
+      "$HOME/.local/run/bystrotex/rust-extras.ipc"
 
-Then run both backend services as your ordinary user:
+podman run --rm \
+  --name bystrotex-backend \
+  --userns=keep-id \
+  --user "$(id -u):$(id -g)" \
+  --mount "type=bind,src=$HOME/.local/run/bystrotex,target=/run/bystrotex" \
+  --mount "type=bind,src=$HOME/.config/bystrotex.bib,target=/config/bystrotex.bib,ro=true" \
+  docker.io/andreimikhailov/bystrotex-backend:latest
+```
 
-    shell-scripts/run-backend-container.sh
+The Racket clients connect to `bystrotex.ipc` and `rust-extras.ipc` in the
+mounted `~/.local/run/bystrotex` directory. The bibliography is mounted
+read-only. If it is stored elsewhere, replace
+`$HOME/.config/bystrotex.bib` with its absolute path.
 
-The launcher shares only `~/.local/run/bystrotex` with the container, so the
-Racket clients connect to `bystrotex.ipc` and `rust-extras.ipc` in that
-directory. It also mounts the bibliography read-only. Set `BYSTROTEX_BIB_PATH`
-if the bibliography is stored elsewhere.
+On a system with SELinux enabled, the socket-directory mount may need
+`relabel=shared`:
+
+```sh
+--mount "type=bind,src=$HOME/.local/run/bystrotex,target=/run/bystrotex,relabel=shared"
+```
+
+Alternatively, build the image locally from the root of this repository:
+
+```sh
+podman build -t localhost/bystrotex-backend:latest .
+```
+
+Then use `localhost/bystrotex-backend:latest` instead of the Docker Hub image
+in the `podman run` command above. Rebuild the local image after changing the
+backend or its dependencies.
 
 To run the SVG backend without a container instead, use:
 
