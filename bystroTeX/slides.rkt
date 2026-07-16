@@ -112,7 +112,7 @@ along with bystroTeX.  If not, see <http://www.gnu.org/licenses/>.
     (let* ([ctxt (context 1)]
            [sock (socket ctxt 'REQ)]
            [sock-path
-            (format "ipc://~a/.local/run/bystrotex.ipc" (path->string (find-system-path 'home-dir)))]
+            (format "ipc://~a/.local/run/bystrotex/bystrotex.ipc" (path->string (find-system-path 'home-dir)))]
            )
       (display (format " -- connecting to ~a ~n" sock-path))
       (socket-connect! sock sock-path)

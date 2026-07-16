@@ -1,0 +1,8 @@
+.git
+**/node_modules
+**/compiled
+**/doc
+**/*.db
+**/*.html
+**/*.svg
+Rust/target

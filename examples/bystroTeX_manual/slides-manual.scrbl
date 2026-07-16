@@ -89,22 +89,23 @@ After installing @hyperlink["https://racket-lang.org/"]{Racket} and
 
 @subpage[1 "Running" #:tag "sec:Running"]
 
-First run the MathJax server:
+Make your BibTeX file available at @tt{~/.config/bystrotex.bib}, then build the
+combined Node and Rust backend container from the root of the repository:
 
 @verb|{
-       cd latex-to-svg/
-       npm i
-       node index.js
+       podman build -t localhost/bystrotex-backend:latest .
        }|
 
-if you want to use BibTeX, you have to
-symlink your BibTeX file to @tt{~/.config/bystrotex.bib}. Then,
-in a separate terminal, start the BibTeX server:
+Then run both services as your ordinary user:
 
 @verb|{
-       cd Rust
-       cargo run
+       shell-scripts/run-backend-container.sh
        }|
+
+The Racket clients and container communicate through @tt{bystrotex.ipc} and
+@tt{rust-extras.ipc} in @tt{~/.local/run/bystrotex}. The launcher shares only
+that directory and mounts the bibliography read-only. Set
+@tt{BYSTROTEX_BIB_PATH} if it is stored elsewhere.
 
 Then, in a separate terminal:
 

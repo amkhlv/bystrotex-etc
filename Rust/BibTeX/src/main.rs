@@ -7,6 +7,7 @@ use serde_json::Value;
 
 use homedir::my_home;
 use std::convert::TryInto;
+use std::env;
 use std::path::PathBuf;
 use zeromq::*;
 
@@ -26,9 +27,17 @@ enum ErrorReport {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut socket_path: PathBuf = my_home()?.unwrap();
-    socket_path.push(".local");
-    socket_path.push("run");
+    let mut socket_path = match env::var("BYSTROTEX_SOCKET_DIR") {
+        Ok(path) => PathBuf::from(path),
+        Err(_) => {
+            let mut path: PathBuf = my_home()?.unwrap();
+            path.push(".local");
+            path.push("run");
+            path.push("bystrotex");
+            path
+        }
+    };
+    std::fs::create_dir_all(&socket_path)?;
     socket_path.push("rust-extras.ipc");
     if socket_path.exists() {
         std::fs::remove_file(&socket_path)?;

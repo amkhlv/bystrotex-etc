@@ -12,8 +12,7 @@
     (let* ([ctxt (context 1)]
            [sock (socket ctxt 'REQ)]
            [sock-path
-            ;(format "ipc://~a/.local/run/bystrotex.ipc" (path->string (find-system-path 'home-dir)))
-            (format "ipc://~a/.local/run/rust-extras.ipc" (path->string (find-system-path 'home-dir)))
+            (format "ipc://~a/.local/run/bystrotex/rust-extras.ipc" (path->string (find-system-path 'home-dir)))
             ]
            )
       (display (format " -- connecting to ~a ~n" sock-path))

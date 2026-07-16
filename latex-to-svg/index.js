@@ -19,9 +19,9 @@ const tex = new TeX({ packages });
 const svg = new SVG({ fontCache: (FONT_CACHE ? 'local' : 'none') });
 const html = mathjax.document('', { InputJax: tex, OutputJax: svg });
 
-const sock_dir = path.join(homedir,".local", "run");
+const sock_dir = process.env.BYSTROTEX_SOCKET_DIR || path.join(homedir, ".local", "run", "bystrotex");
 if (!fs.existsSync(sock_dir)) {
-  fs.mkdirSync(sock_dir);
+  fs.mkdirSync(sock_dir, { recursive: true });
 }
 
 async function runServer() {

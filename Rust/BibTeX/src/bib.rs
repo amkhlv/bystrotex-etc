@@ -2,9 +2,11 @@ use biblatex::{Bibliography, Entry, ParseError, Person};
 use itertools::intersperse;
 use serde::Serialize;
 use serde_json::Value;
+use std::env;
 use std::error::Error;
 use std::fmt;
 use std::fs;
+use std::path::PathBuf;
 
 #[derive(Serialize, Debug)]
 pub struct Bib {
@@ -29,7 +31,16 @@ impl fmt::Display for KeyNotFound {
 impl Error for KeyNotFound {}
 
 pub fn get_bibliography() -> Bibliography {
-    let bib_str = fs::read_to_string("/home/andrei/.config/bystrotex.bib").unwrap();
+    let bib_path = match env::var("BYSTROTEX_BIB_PATH") {
+        Ok(path) => PathBuf::from(path),
+        Err(_) => {
+            let mut path = homedir::my_home().unwrap().unwrap();
+            path.push(".config");
+            path.push("bystrotex.bib");
+            path
+        }
+    };
+    let bib_str = fs::read_to_string(bib_path).unwrap();
     Bibliography::parse(&bib_str).unwrap()
 }
 
