@@ -48,7 +48,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         socket_path.into_os_string().into_string().unwrap()
     ];
 
-    let bbl = get_bibliography();
     println!("Starting server listening on {}", socket_url);
     let mut socket = zeromq::RepSocket::new();
     socket.bind(&socket_url).await?;
@@ -61,6 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         match req.req_type {
             ReqType::BibTeX => match req.payload {
                 Value::String(x) => {
+                    let bbl = get_bibliography();
                     let bibitemr = get_bibitem(&x, &bbl);
 
                     if let Ok(bibitem) = bibitemr {
