@@ -3,6 +3,37 @@ A tool for writing HTML with LaTeX formulas
 
 ## Installation
 
+### Nix flake
+
+Build both `bystrotex` and `b2l` with:
+
+```sh
+nix build .#bystrotex
+```
+
+Both executables are installed in `result/bin`. They can also be run directly:
+
+```sh
+nix run .#bystrotex -- --help
+nix run .#b2l -- --help
+```
+
+The flake includes the BystroTeX collection and the Racket `zeromq` package. It
+wraps the programs with the native ZeroMQ library path and also supplies
+Racket's `scribble` executable for generated documents. Linked user packages
+remain available through Racket's normal user collection paths.
+
+To build BystroTeX with exactly the same Racket version as a NixOS system,
+call the package expression from that system's package set:
+
+```nix
+environment.systemPackages = [
+  (pkgs.callPackage /home/andrei/a/git/bystrotex-etc { })
+];
+```
+
+### Manual Racket installation
+
 Make sure that `~/.local/bin` is in `PATH`
 
     git clone https://github.com/amkhlv/bystrotex-etc
