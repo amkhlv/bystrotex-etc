@@ -57,7 +57,7 @@ body {
 
   /* Paper appearance */
   background-color: #ffffff;
-  padding: 2.5cm 3cm;          /* top/bottom 2.5cm, left/right 3cm */
+  padding: 1.5cm;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
 
@@ -206,7 +206,7 @@ h5 {
 
 @page {
   size: A4;
-  margin: 2.5cm 3cm;   /* top/bottom 2.5cm, left/right 3cm */
+  margin: 1.5cm;
 }
 
 @media print {
@@ -226,14 +226,14 @@ h5 {
   .navright       { display: none !important; }
   #contextindicator { display: none !important; }
 
-  /* The @page margin IS the letter margin.
-     Strip the screen simulation so content fills
-     the full printable area.                      */
+  /* In headless Chrome (--print-to-pdf) the @page margin CSS rule is
+     ignored, so we keep the screen padding here to serve as the page
+     margin.  box-sizing:border-box ensures width:100% absorbs it.   */
   .maincolumn {
     float: none !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 1.5cm !important;
     box-shadow: none !important;
     background: white !important;
     box-sizing: border-box !important;

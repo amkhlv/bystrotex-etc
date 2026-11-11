@@ -43,7 +43,7 @@ body {
   margin: 1.5cm auto !important;
 
   background-color: #ffffff;
-  padding: 2.5cm 3cm;
+  padding: 1.5cm;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
 
@@ -193,7 +193,7 @@ h5 {
 
 @page {
   size: A4;
-  margin: 2.5cm 3cm;
+  margin: 1.5cm;
 }
 
 @media print {
@@ -215,7 +215,7 @@ h5 {
     float: none !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 1.5cm !important;
     box-shadow: none !important;
     background: white !important;
     box-sizing: border-box !important;

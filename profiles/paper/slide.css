@@ -309,12 +309,14 @@ hr {
   .navright       { display: none !important; }
   #contextindicator { display: none !important; }
 
-  /* Strip the screen paper simulation */
+  /* In headless Chrome (--print-to-pdf) the @page margin CSS rule is
+     ignored, so we keep the screen padding here to serve as the page
+     margin.  box-sizing:border-box ensures width:100% absorbs it.   */
   .maincolumn {
     float: none !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 2.5cm !important;
     box-shadow: none !important;
     background: white !important;
     box-sizing: border-box !important;
