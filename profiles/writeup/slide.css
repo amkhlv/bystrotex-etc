@@ -183,12 +183,14 @@ table, th, td
     margin-left: 20%;
 }
 
+/*
 .bystro-formula {
   filter: invert(.1) sepia() saturate(50) hue-rotate(240deg);
 }
 .bystro-equation {
   filter: invert(.1) sepia() saturate(50) hue-rotate(240deg);
 }
+*/
 
 talk {
     font-size: 18pt;

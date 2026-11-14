@@ -226,11 +226,6 @@ h5 {
     max-width: none !important;
   }
 
-  a {
-    color: black !important;
-    text-decoration: none !important;
-  }
-
   p, .SIntrapara {
     orphans: 3;
     widows: 3;

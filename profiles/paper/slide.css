@@ -327,11 +327,6 @@ hr {
     max-width: none !important;
   }
 
-  /* Black links, no underline */
-  a {
-    color: black !important;
-    text-decoration: none !important;
-  }
 
   /* Pagination quality */
   p, .SIntrapara {

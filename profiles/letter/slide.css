@@ -244,12 +244,6 @@ h5 {
     max-width: none !important;
   }
 
-  /* Black links, no underline — cleaner in PDF */
-  a {
-    color: black !important;
-    text-decoration: none !important;
-  }
-
   /* Pagination quality */
   p, .SIntrapara {
     orphans: 3;

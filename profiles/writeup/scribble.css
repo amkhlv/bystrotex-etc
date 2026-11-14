@@ -514,9 +514,11 @@ ol ol ol ol { list-style-type: upper-alpha; }
     margin-left: 0;
   }
 }
+/*
 .bystro-formula {
   filter: invert(74%) sepia(71%) saturate(6193%) hue-rotate(161deg) brightness(94%) contrast(101%);
 }
 .bystro-equation {
   filter: invert(74%) sepia(71%) saturate(6193%) hue-rotate(161deg) brightness(94%) contrast(101%);
 }
+*/
