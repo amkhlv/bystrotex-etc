@@ -3,6 +3,23 @@ A tool for writing HTML with LaTeX formulas
 
 ## Installation
 
+### Manual Racket installation
+
+Make sure that `~/.local/bin` is in `PATH`
+
+    git clone https://github.com/amkhlv/bystrotex-etc
+    cd bystrotex-etc
+    
+    raco pkg install --link bystroTeX/
+    raco pkg install --link truques/
+    raco setup
+    
+    cd bystroTeX
+    raco exe bystrotex.rkt
+    mv bystrotex ~/.local/bin/
+    cd ..
+
+
 ### Nix flake
 
 Build both `bystrotex` and `b2l` with:
@@ -32,21 +49,6 @@ environment.systemPackages = [
 ];
 ```
 
-### Manual Racket installation
-
-Make sure that `~/.local/bin` is in `PATH`
-
-    git clone https://github.com/amkhlv/bystrotex-etc
-    cd bystrotex-etc
-    
-    raco pkg install --link bystroTeX/
-    raco pkg install --link truques/
-    raco setup
-    
-    cd bystroTeX
-    raco exe bystrotex.rkt
-    mv bystrotex ~/.local/bin/
-    cd ..
 
 ## building example pages
 
