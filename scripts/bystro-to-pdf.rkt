@@ -76,19 +76,32 @@
 (define (absolute-str p)
   (path->string (path->complete-path p)))
 
+(define (find-node)
+  (or (find-executable-path "node")
+      (find-executable-path "nodejs")
+      (error "Node.js not found in PATH (tried: node, nodejs)")))
+
+;; Path to the CDP helper script, located alongside this file.
+(define (helper-script)
+  (build-path
+   (path-only (path->complete-path (find-system-path 'run-file)))
+   "chrome-print-pdf.js"))
+
 (define (chromium-print! exe html-path pdf-path)
-  (define url (string-append "file://" (absolute-str html-path)))
+  ;; Use the CDP helper script so that displayHeaderFooter:false is
+  ;; guaranteed — the --print-to-pdf-no-header CLI flag is unreliable
+  ;; across Chrome versions.
+  (define url  (string-append "file://" (absolute-str html-path)))
+  (define node (find-node))
   (define code
     (system*/exit-code
-     exe
-     "--headless=new"
-     "--disable-gpu"
-     "--no-sandbox"
-     "--print-to-pdf-no-header"
-     (format "--print-to-pdf=~a" (absolute-str pdf-path))
-     url))
+     node
+     (path->string (helper-script))
+     (path->string exe)
+     url
+     (absolute-str pdf-path)))
   (unless (zero? code)
-    (error "Chromium/Chrome exited with non-zero status" code)))
+    (error "chrome-print-pdf.js exited with non-zero status" code)))
 
 (define (firefox-print! exe html-path pdf-path)
   ;; Firefox ≥ 96 supports --headless --print-to-file.
