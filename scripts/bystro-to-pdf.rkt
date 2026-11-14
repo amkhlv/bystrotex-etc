@@ -209,7 +209,7 @@
      #:program "bystro-to-pdf"
      #:once-each
      [("-b" "--browser") b
-      "Browser: chromium (default auto-detect), chrome, firefox, or /path/to/exe"
+      "Browser for PDF rendering: chromium | chrome | firefox | /path/to/exe (default: auto-detect chromium/chrome; PDF output uses Chrome DevTools Protocol, so a Chromium-based browser is strongly recommended)"
       (browser-spec b)]
      [("-o" "--output") pdf
       "Output PDF path (default: <input>.pdf)"
