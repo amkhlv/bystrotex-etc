@@ -53,7 +53,6 @@
       [`(bibliography ,@_) (void)]
       [`(fsize= ,@_) (void)]
       [`(fsize+ ,@_) (void)]
-      [`(elemtag ,@_) (void)]
       [`(bystro-margin-note ,@_) (void)]
       [`(bystro-abstract ,@_) (void)]
       [`(bystro-authors ,@_) (void)]
@@ -142,7 +141,16 @@
       [`(defn-ref ,x) (printf "\\ref{~a}" x)]
       [`(spn attn ,@xs) (begin (disp "{\\bf ") (map main0 xs) (disp "}"))]
       [`(ref ,x) (printf "\\ref{~a}" x)]
+      [`(elemtag ,tg ,@xs)
+       (begin (printf "\\hypertarget{~a}{" tg) (map main0 xs) (disp "}"))]
+      [`(elemref ,tg ,@xs)
+       (begin (printf "\\hyperlink{~a}{" tg) (map main0 xs) (disp "}"))]
       [`(div s ,@xs) (begin (disp "{\\bf ") (map main0 xs) (disp "}"))]
+      [`(div redbox ,@xs)
+       (begin
+         (displn "\n\n\\noindent\\fbox{\\parbox{\\dimexpr\\linewidth-2\\fboxsep-2\\fboxrule\\relax}{")
+         (map main0 xs)
+         (displn "}}\n"))]
       [`(hyperlink ,url ,@xs) ;TODO add blue color
        (printf "\\href{~a}{~a}" url (with-output-to-string (λ () (map main0 xs))))]
       [`(spn attn ,@xs) ;TODO do something more expressive
